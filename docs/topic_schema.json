@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OnboardingResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile",
+    "themes",
+    "topics"
+  ],
+  "properties": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "roles",
+        "interests",
+        "current_focus",
+        "tools",
+        "work_style"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "원문에 근거한 한 문장 소개."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "하는 일·역할. 최대 8개."
+        },
+        "interests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "관심사. 최대 8개."
+        },
+        "current_focus": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "요즘 가장 시간을 쓰는 일. 최대 3개."
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "자주 쓰는 도구. 최대 8개."
+        },
+        "work_style": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "사용자가 선호한다고 말한 작업 방식 한 문장. 없으면 null."
+        }
+      }
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "one_liner",
+          "theme",
+          "category",
+          "progress",
+          "last_touched",
+          "goal",
+          "status_text",
+          "outputs",
+          "recent_decisions",
+          "blockers",
+          "next_steps",
+          "deadline",
+          "deadline_label",
+          "deadline_text",
+          "collaborators",
+          "related",
+          "sources",
+          "merged_from",
+          "suggested_state",
+          "suggested_reason"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "t1, t2 ... 순서대로."
+          },
+          "name": {
+            "type": "string",
+            "description": "토픽 이름. 원문의 프로젝트 이름."
+          },
+          "one_liner": {
+            "type": "string",
+            "description": "한 줄 설명."
+          },
+          "theme": {
+            "type": "string",
+            "description": "이 토픽이 속한 테마. themes에 있는 이름과 정확히 같아야 함."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "school",
+              "personal",
+              "work",
+              "career",
+              "other"
+            ],
+            "description": "school=학교, personal=개인 프로젝트, work=일, career=지원·커리어, other=기타."
+          },
+          "progress": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "stalled",
+              "done",
+              "idea_only",
+              "unknown"
+            ],
+            "description": "in_progress=진행 중, stalled=멈춤, done=끝남, idea_only=아이디어만, unknown=모름."
+          },
+          "last_touched": {
+            "type": "string",
+            "enum": [
+              "recent_2w",
+              "recent_1m",
+              "older",
+              "unknown"
+            ],
+            "description": "마지막으로 다룬 시기. recent_2w=최근 2주, recent_1m=최근 한 달, older=그 이전, unknown=모름."
+          },
+          "goal": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "이 일로 이루려는 것, 완성의 기준. 두 문장 이내. 모르면 null."
+          },
+          "status_text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "마지막으로 어디까지 했는지. 두 문장 이내. 모르면 null."
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "지금까지 만든 것(문서, 코드, 버전, 자료). 최대 3개."
+          },
+          "recent_decisions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "최근에 내린 결정. 최대 3개."
+          },
+          "blockers": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "막힌 점이나 미정인 것. 두 문장 이내. 없거나 모르면 null."
+          },
+          "next_steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "사용자가 말한 다음 할 일. 순서대로 최대 3개. 없으면 빈 배열."
+          },
+          "deadline": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "원문에 분명히 적힌, today 이후의 날짜만 YYYY-MM-DD로. 지난 날짜나 불분명한 일정은 null."
+          },
+          "deadline_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "deadline이 무엇의 마감인지. 예: '팀 프로젝트 발표'. deadline이 null이면 null."
+          },
+          "deadline_text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "지난 날짜, 불분명한 일정, deadline에 넣지 못한 나머지 일정의 원문 표현. 없으면 null."
+          },
+          "collaborators": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "함께하는 사람의 역할(조원, 친구, 멘티 등). 이름은 넣지 않음. 혼자면 빈 배열."
+          },
+          "related": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "관련 대화 주제. 최대 5개."
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "chatgpt",
+                "claude",
+                "other"
+              ]
+            },
+            "description": "이 토픽이 나온 출처. 합쳤으면 전부."
+          },
+          "merged_from": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "여러 항목을 합친 경우 원래 이름들. 합치지 않았으면 빈 배열."
+          },
+          "suggested_state": {
+            "type": "string",
+            "enum": [
+              "active",
+              "later",
+              "remove"
+            ],
+            "description": "처음 상태 제안. 사용자가 확인 화면에서 바꿀 수 있음."
+          },
+          "suggested_reason": {
+            "type": "string",
+            "description": "분류한 까닭 한 줄. 사실만."
+          }
+        }
+      }
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "테마 이름. 표시 순서대로, 4~8개."
+    }
+  }
+}

@@ -1,0 +1,144 @@
+/* Untangle 디자인 토큰 v0.2 — "실타래" 테마
+   컴포넌트에서는 색·간격·글자 값을 직접 쓰지 않고 아래 변수만 쓴다.
+   글꼴: Pretendard + Instrument Serif (npm, 로컬 제공) */
+
+:root {
+  color-scheme: light;
+  /* 바탕과 면 */
+  --color-bg: #FAFAF8;            /* 화면 바탕 */
+  --color-surface: #FFFFFF;       /* 카드, 패널 */
+  --color-surface-sunken: #F3F2EE;/* 카드 안의 초안 상자 */
+
+  /* 글자 */
+  --color-ink: #1C1C1A;           /* 본문, 제목, 주요 버튼 바탕 */
+  --color-text-secondary: #5C5C57;/* 설명, 보조 정보 */
+  --color-on-ink: #FFFFFF;        /* 잉크색 바탕 위의 글자 */
+
+  /* 선 */
+  --color-border: #E7E5E0;        /* 기본 구분선, 카드 테두리 */
+  --color-border-strong: #C9C6BF; /* 보조 버튼 테두리 */
+  --color-border-loose: #96938B;  /* 점선 테두리 (탐색 카드, 정리 묶음) */
+
+  /* 실 색: 테마 구분 전용. 테마가 생긴 순서대로 1번부터 배정한다.
+     글자색이나 버튼색으로 쓰지 않는다 */
+  --thread-1: #3A5BC7;
+  --thread-2: #1F8A70;
+  --thread-3: #D9722E;
+  --thread-4: #C2477F;
+  --thread-5: #7A52C7;
+  --thread-6: #B08A1E;
+  --thread-7: #C24B3A;
+  --thread-8: #5A6B7F;
+  --thread-current: var(--color-ink); /* 토픽/테마가 정한 장식 선 색 */
+
+  /* 글꼴 */
+  --font-sans: var(--font-pretendard, 'Pretendard'), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-instrument-serif, 'Instrument Serif'), Georgia, serif;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 600;
+  --weight-heavy: 700;
+
+  /* 글자 크기 */
+  --text-xs: 12px;   /* 라벨, 꼬리표, 남은 날짜 */
+  --text-sm: 13px;   /* 보조 버튼, 부가 설명 */
+  --text-md: 14px;   /* 본문 기본 */
+  --text-lg: 16px;   /* 강조 본문, 주요 버튼 */
+  --text-xl: 19px;   /* 작은 카드 제목 */
+  --text-2xl: 34px;  /* 첫 카드 제목, 화면 제목 */
+  --text-display: 40px; /* 홈의 영어 강조 문구 */
+  --leading-body: 1.55;
+  --leading-title: 1.2;
+  --tracking-title: -1px;    /* --text-2xl 에 */
+  --tracking-subtitle: -0.4px; /* --text-xl 에 */
+
+  /* 간격 (4px 배수) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+
+  /* 모서리 */
+  --radius-sm: 8px;   /* 표, 작은 상자 */
+  --radius-md: 12px;  /* 버튼, 초안 상자 */
+  --radius-lg: 16px;  /* 카드, 패널 */
+
+  /* 테두리 굵기 */
+  --border-thin: 1px;
+  --border-loose: 1.5px;  /* 점선 */
+  --border-focus: 1.5px;  /* 첫 카드, 활성 묶음 */
+
+  /* 실 (그림 선) */
+  --thread-stroke: 2px;       /* 모든 선 그림의 굵기. 끝은 둥글게 */
+  --thread-mark-width: 16px;  /* 토픽 옆 짧은 실 */
+  --thread-mark-height: 3px;
+
+  /* 크기 */
+  --touch-min: 44px;      /* 누를 수 있는 요소의 최소 높이 */
+  --button-primary: 52px; /* 주요 버튼 높이 */
+  --content-width-today: 760px;
+  --content-width-wide: 1280px;
+  --content-width-board: 960px;
+  --theme-box-width: 280px;
+  --icon-size: 20px;
+
+  /* 움직임: 선과 카드 등장에만 쓴다 */
+  --motion-fast: 200ms;
+  --motion-thread: 500ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 저장한 선택은 기기 설정보다 우선한다. 선택이 없으면 CSS부터 기기 설정을 따른다. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #161614;
+  --color-surface: #1E1E1C;
+  --color-surface-sunken: #262623;
+  --color-ink: #EDEBE6;
+  --color-text-secondary: #A8A59D;
+  --color-on-ink: #161614;
+  --color-border: #33322E;
+  --color-border-strong: #4A4843;
+  --color-border-loose: #6E6B64;
+  --thread-1: #7C9BFF;
+  --thread-2: #4FC3A1;
+  --thread-3: #F0965A;
+  --thread-4: #E57FAE;
+  --thread-5: #A98BEE;
+  --thread-6: #D4B24A;
+  --thread-7: #EE8272;
+  --thread-8: #9AA9BC;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #161614;
+    --color-surface: #1E1E1C;
+    --color-surface-sunken: #262623;
+    --color-ink: #EDEBE6;
+    --color-text-secondary: #A8A59D;
+    --color-on-ink: #161614;
+    --color-border: #33322E;
+    --color-border-strong: #4A4843;
+    --color-border-loose: #6E6B64;
+    --thread-1: #7C9BFF;
+    --thread-2: #4FC3A1;
+    --thread-3: #F0965A;
+    --thread-4: #E57FAE;
+    --thread-5: #A98BEE;
+    --thread-6: #D4B24A;
+    --thread-7: #EE8272;
+    --thread-8: #9AA9BC;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-thread: 0ms;
+  }
+}

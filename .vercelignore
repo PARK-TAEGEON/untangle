@@ -1,0 +1,26 @@
+# Local secrets and validation output must never be uploaded.
+.env*
+out/
+archives/
+archive/
+*.zip
+*.7z
+*.tar
+*.tgz
+*.gz
+*.bz2
+*.xz
+
+# Dependencies and build output are created in Vercel's build environment.
+node_modules/
+.next/
+.vercel/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local QA helpers and historical reports are not required by the deployed app.
+scripts/
+tests/
+*REPORT.md
+AGENTS.md

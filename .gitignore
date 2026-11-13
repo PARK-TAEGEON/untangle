@@ -1,0 +1,24 @@
+node_modules/
+.next/
+coverage/
+*.tsbuildinfo
+.env*
+!.env.example
+.env.local
+out/
+next-env.d.ts
+.vercel/
+
+# Local input bundles and generated result archives are not repository assets.
+*.zip
+*.7z
+*.tar
+*.tgz
+*.gz
+*.bz2
+*.xz
+archives/
+archive/
+
+# The current design guide is docs/design_guide.md; this loose copy is obsolete.
+/design_guide.md
