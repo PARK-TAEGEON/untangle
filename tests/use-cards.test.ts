@@ -82,6 +82,27 @@ afterEach(async () => {
 });
 
 describe("useCards request lifetime", () => {
+  it("restores a backup during a live request without auto fetching or letting its old result finish the newer request", async () => {
+    const oldRequest = deferred();
+    const newRequest = deferred();
+    fetchMock.mockReturnValueOnce(oldRequest.promise).mockReturnValueOnce(newRequest.promise);
+    await render();
+    expect(latest.loading).toBe(true);
+    const imported = applyGeneratedCards(workspace(), [{ ...card, title: "가져온 초안" }], NOW, "2026-11-11");
+    await act(async () => { expect(store.restore(imported)).toBe(true); });
+    expect(latest.loading).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(getCardState(store.workspace!).items[0].nudge.title).toBe("가져온 초안");
+    await act(async () => { void latest.generate(); });
+    expect(latest.loading).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await resolve(oldRequest, [{ ...card, title: "무시할 옛 초안" }]);
+    expect(latest.loading).toBe(true);
+    expect(getCardState(store.workspace!).items[0].nudge.title).toBe("가져온 초안");
+    await resolve(newRequest, [{ ...card, title: "새 요청의 초안" }]);
+    expect(latest.loading).toBe(false);
+    expect(getCardState(store.workspace!).items[0].nudge.title).toBe("새 요청의 초안");
+  });
   it("preserves one automatic fetch through StrictMode replay when mounted after provider hydration", async () => {
     const request = deferred();
     fetchMock.mockReturnValue(request.promise);
@@ -191,6 +212,25 @@ describe("useCards request lifetime", () => {
 });
 
 describe("isolated offline sample mode", () => {
+  it("keeps the saved sample round after backup restoration on a later day and home navigation", async () => {
+    await render(false);
+    await act(async () => { expect(store.startSample("student")).toBe(true); });
+    const backup = structuredClone(store.workspace!);
+    const round = backup.sample!.next_round;
+    const cards = backup.cards!.items.map((item) => item.content);
+    vi.setSystemTime("2026-11-14T03:00:00.000Z");
+    await act(async () => { expect(store.restore(backup)).toBe(true); });
+    await render(true);
+    expect(store.workspace?.cards?.generated_date).toBe("2026-11-14");
+    expect(store.workspace?.sample?.next_round).toBe(round);
+    expect(store.workspace?.cards?.items.map((item) => item.content)).toEqual(cards);
+    expect(latest.today).toBe(backup.sample?.baseline_date);
+    await render(false);
+    await render(true);
+    expect(store.workspace?.sample?.next_round).toBe(round);
+    expect(store.workspace?.cards?.items.map((item) => item.content)).toEqual(cards);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
   it("keeps personal data byte-for-byte while sample actions and both persona switches call no API", async () => {
     const personal = window.localStorage.getItem(WORKSPACE_STORAGE_KEY);
     await render(false);

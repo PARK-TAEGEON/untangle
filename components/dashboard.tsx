@@ -32,9 +32,13 @@ export function Dashboard() {
   return <AppChrome active="today" onBeforeSampleExit={() => setLeavingSample(true)} onSampleExitFailed={() => setLeavingSample(false)}>
     <main id="home-main" className="today-page">
       <div className="home-intro"><div className="home-title"><h1 lang="en">One thread at a time.</h1></div><button type="button" className="button button-secondary" disabled={loading} onClick={() => void generate()}>{loading ? "준비하고 있어요" : "새 제안 받기"}</button></div>
-      {loading ? <CardSkeleton /> : error ? <CardEmpty failed message={error} onGenerate={() => void generate()} /> : hero ? renderExpanded(hero) : <CardEmpty onGenerate={() => void generate()} />}
-      {remaining.length > 0 && <section className="today-card-list" aria-label="다른 한 걸음"><header className="section-heading"><h2>다른 한 걸음</h2><span className="count-chip">{remaining.length}</span></header>{remaining.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
-      {error && cards.length > 0 && <section className="today-card-list" aria-label="저장된 제안"><h2>저장된 제안</h2>{cards.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
+      <div className={`today-columns${remaining.length > 0 || (error && cards.length > 0) ? " has-aside" : ""}`}>
+        <div className="today-primary">{loading ? <CardSkeleton /> : error ? <CardEmpty failed message={error} onGenerate={() => void generate()} /> : hero ? renderExpanded(hero) : <CardEmpty onGenerate={() => void generate()} />}</div>
+        {(remaining.length > 0 || (error && cards.length > 0)) && <aside className="today-other-cards">
+          {remaining.length > 0 && <section className="today-card-list" aria-label="다른 한 걸음"><header className="section-heading"><h2>다른 한 걸음</h2><span className="count-chip">{remaining.length}</span></header>{remaining.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
+          {error && cards.length > 0 && <section className="today-card-list" aria-label="저장된 제안"><h2>저장된 제안</h2>{cards.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
+        </aside>}
+      </div>
     </main>
   </AppChrome>;
 }

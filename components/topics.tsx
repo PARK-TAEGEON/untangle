@@ -17,11 +17,10 @@ function TopicTile({ topic, workspace, today, onAction }: { topic: WorkspaceTopi
   const { update } = useWorkspace();
   const themeIndex = workspace.themes.findIndex((theme) => theme.name === topic.theme);
   const caption = deadlineCaption(topic.deadline, today);
-  const sources = topic.sources.filter((source) => source !== "other").map((source) => source === "chatgpt" ? "ChatGPT" : "Claude").join(" · ");
   const starLimit = !topic.starred && workspace.topics.filter((item) => item.starred).length >= 3;
   return <li className="topic-tile"><Link className="topic-tile-link" href={`/topics/${encodeURIComponent(topic.id)}`} onClick={() => update((previous) => selectTopic(previous, topic.id, new Date().toISOString()))}>
     <TopicName name={topic.name} themeIndex={themeIndex} /><p className="topic-tile-description">{topic.one_liner}</p>
-    {(caption || sources) && <span className="topic-tile-meta">{caption && <span>{caption}</span>}{sources && <span>{sources}</span>}</span>}
+    {caption && <span className="topic-tile-meta"><span>{caption}</span></span>}
   </Link><div className="topic-tile-actions"><IconButton icon="star" label={`${topic.name} ${topic.starred ? "별 해제" : starLimit ? "별 표시 (최대 3개)" : "별 표시"}`} aria-pressed={topic.starred} disabled={starLimit} onClick={() => update((previous) => toggleStar(previous, topic.id))} /><TopicMenu topic={topic} workspace={workspace} onAction={onAction} /></div></li>;
 }
 

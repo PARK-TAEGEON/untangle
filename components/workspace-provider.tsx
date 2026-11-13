@@ -7,6 +7,7 @@ import { createSampleWorkspace } from "../lib/sample-mode";
 import type { SamplePersonaId } from "../lib/sample-mode";
 import { todayInSeoul } from "../lib/dates";
 import type { WorkspaceData } from "../lib/workspace";
+import { prepareWorkspaceRestore } from "../lib/backup";
 
 interface WorkspaceContextValue {
   workspace: WorkspaceData | null;
@@ -14,6 +15,7 @@ interface WorkspaceContextValue {
   error: string | null;
   update: (fn: (previous: WorkspaceData) => WorkspaceData) => boolean;
   replace: (data: WorkspaceData) => boolean;
+  restore: (data: WorkspaceData) => boolean;
   mode: "personal" | "sample";
   startSample: (persona: SamplePersonaId) => boolean;
   exitSample: () => boolean;
@@ -32,6 +34,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<"personal" | "sample">("personal");
   const current = useRef<WorkspaceData | null>(null);
   const loaded = useRef(false);
+  const currentMode = useRef<"personal" | "sample">("personal");
 
   useEffect(() => {
     const read = () => {
@@ -40,6 +43,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         const data = loadWorkspace(window.localStorage, nextMode === "sample" ? SAMPLE_WORKSPACE_STORAGE_KEY : WORKSPACE_STORAGE_KEY);
         if (nextMode === "sample" && !data?.sample) throw new Error("샘플 자료를 읽지 못했어요. 샘플을 다시 골라 주세요.");
         current.current = data;
+        currentMode.current = nextMode;
         setWorkspace(data);
         setMode(nextMode);
         setError(null);
@@ -76,8 +80,25 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       saveWorkspace(window.localStorage, data, data.sample ? SAMPLE_WORKSPACE_STORAGE_KEY : WORKSPACE_STORAGE_KEY);
       window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, nextMode);
       current.current = data;
+      currentMode.current = nextMode;
       setWorkspace(data);
       setMode(nextMode);
+      setError(null);
+      return true;
+    } catch (cause) {
+      setError(message(cause));
+      return false;
+    }
+  }, []);
+
+  /** Backup restoration writes one existing mode only; failure cannot change its mode flag or UI. */
+  const restore = useCallback((data: WorkspaceData): boolean => {
+    if (!loaded.current) return false;
+    try {
+      const restored = prepareWorkspaceRestore(data, currentMode.current, todayInSeoul());
+      saveWorkspace(window.localStorage, restored, currentMode.current === "sample" ? SAMPLE_WORKSPACE_STORAGE_KEY : WORKSPACE_STORAGE_KEY);
+      current.current = restored;
+      setWorkspace(restored);
       setError(null);
       return true;
     } catch (cause) {
@@ -97,6 +118,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const data = loadWorkspace(window.localStorage);
       window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, "personal");
       current.current = data;
+      currentMode.current = "personal";
       setWorkspace(data);
       setMode("personal");
       setError(null);
@@ -118,7 +140,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   }, [replace]);
 
-  return <WorkspaceContext.Provider value={{ workspace, ready, error, update, replace, mode, startSample, exitSample }}>{children}</WorkspaceContext.Provider>;
+  return <WorkspaceContext.Provider value={{ workspace, ready, error, update, replace, restore, mode, startSample, exitSample }}>{children}</WorkspaceContext.Provider>;
 }
 
 export function useWorkspace(): WorkspaceContextValue {

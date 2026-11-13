@@ -40,12 +40,13 @@
   --weight-heavy: 700;
 
   /* 글자 크기 */
-  --text-xs: 12px;   /* 라벨, 꼬리표, 남은 날짜 */
-  --text-sm: 13px;   /* 보조 버튼, 부가 설명 */
-  --text-md: 14px;   /* 본문 기본 */
-  --text-lg: 16px;   /* 강조 본문, 주요 버튼 */
-  --text-xl: 19px;   /* 작은 카드 제목 */
-  --text-2xl: 34px;  /* 첫 카드 제목, 화면 제목 */
+  --text-xs: 13px;   /* 라벨, 꼬리표, 남은 날짜 */
+  --text-sm: 14px;   /* 보조 버튼, 부가 설명 */
+  --text-md: 16px;   /* 본문 기본 */
+  --text-lg: 17px;   /* 강조 본문, 주요 버튼 */
+  --text-xl: 21px;   /* 작은 카드 제목 */
+  --text-2xl: 40px;  /* 첫 카드 제목, 화면 제목 */
+  --text-draft: 15px;
   --text-display: 40px; /* 홈의 영어 강조 문구 */
   --leading-body: 1.55;
   --leading-title: 1.2;
@@ -79,15 +80,18 @@
   /* 크기 */
   --touch-min: 44px;      /* 누를 수 있는 요소의 최소 높이 */
   --button-primary: 52px; /* 주요 버튼 높이 */
-  --content-width-today: 760px;
+  --content-width-today: 880px;
   --content-width-wide: 1280px;
   --content-width-board: 960px;
   --theme-box-width: 280px;
   --icon-size: 20px;
+  --today-aside-width: 360px;
+  --motion-rise: 8px;
+  --motion-hover: 2px;
 
-  /* 움직임: 선과 카드 등장에만 쓴다 */
+  /* 움직임: 300ms 이하, 기기 움직임 줄이기 설정에서 모두 끈다 */
   --motion-fast: 200ms;
-  --motion-thread: 500ms;
+  --motion-thread: 200ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 

@@ -1,0 +1,38 @@
+.hs-root .hs-preview, .hs-root .hs-preview code, .hs-root .hs-preview pre, .hs-root .hs-table-wrap table, .hs-root .hs-editor textarea { font-size: var(--text-draft); }
+.today-columns, .today-primary, .today-other-cards { min-width: 0; }
+.topic-tile { transition: transform var(--motion-fast) var(--ease-out), background-color var(--motion-fast); }
+@media (hover: hover) { .topic-tile:hover { transform: translateY(calc(var(--motion-hover) * -1)); } }
+main { animation: page-appear var(--motion-fast) var(--ease-out); }
+@keyframes page-appear { from { opacity: 0; } to { opacity: 1; } }
+::view-transition-old(root) { animation: page-disappear var(--motion-fast) ease-out both; }
+::view-transition-new(root) { animation: page-appear var(--motion-fast) ease-out both; }
+::view-transition-group(.page-crossfade) { animation-duration: var(--motion-fast); animation-timing-function: var(--ease-out); }
+::view-transition-old(.page-crossfade) { animation: page-disappear var(--motion-fast) ease-out both; }
+::view-transition-new(.page-crossfade) { animation: page-appear var(--motion-fast) ease-out both; }
+::view-transition { pointer-events: none; }
+/* Finish local entrance animations before native snapshots capture the new page.
+   Keeping their names avoids restarting them when the native crossfade ends. */
+:root:active-view-transition main,
+:root:active-view-transition .proposal-card:not(.is-leaving):not(.is-finishing),
+:root:active-view-transition .small-proposal,
+:root:active-view-transition .card-empty,
+:root:active-view-transition .card-skeleton { animation-duration: 0s; }
+@keyframes page-disappear { to { opacity: 0; } }
+@supports (interpolate-size: allow-keywords) {
+  .animated-disclosure { interpolate-size: allow-keywords; }
+  .animated-disclosure::details-content { height: 0; overflow: clip; opacity: 0; transition: height var(--motion-fast) var(--ease-out), opacity var(--motion-fast), content-visibility var(--motion-fast) allow-discrete; }
+  .animated-disclosure[open]::details-content { height: auto; opacity: 1; }
+}
+@media (min-width: 1280px) {
+  .today-page:has(.today-columns.has-aside) { max-width: 100%; }
+  .today-columns { max-width: var(--content-width-today); margin: 0 auto; }
+  .today-columns.has-aside { display: grid; grid-template-columns: minmax(0, 1fr) var(--today-aside-width); gap: var(--space-5); max-width: none; align-items: start; }
+  .today-other-cards .today-card-list { margin-top: 0; }
+  .today-other-cards .today-card-list + .today-card-list { margin-top: var(--space-5); }
+  .today-other-cards { position: sticky; top: var(--space-5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+  ::view-transition-old(*), ::view-transition-new(*), ::view-transition-group(*) { animation: none !important; }
+  .topic-tile:hover { transform: none; }
+}

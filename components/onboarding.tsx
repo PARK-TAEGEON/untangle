@@ -12,6 +12,7 @@ import { Brand, ThreadDrawing, TopicName } from "./ui";
 import { SAMPLE_PERSONAS } from "../lib/sample-mode";
 import type { SamplePersonaId } from "../lib/sample-mode";
 import { ThemeToggle } from "./theme-toggle";
+import { BackupMenu } from "./backup-menu";
 
 const STEPS = ["프롬프트 복사", "결과 붙여넣기", "토픽 확인"];
 const GROUPS: Array<{ state: SuggestedState; title: string; description: string }> = [
@@ -126,7 +127,7 @@ export function Onboarding({ exportPrompt }: { exportPrompt: string }) {
     <main className="ob-shell">
       <header className="ob-header">
         <Brand href={hasExistingTopics || sampleActive ? "/" : "/start"} />
-        <div className="ob-header-actions"><ThemeToggle />
+        <div className="ob-header-actions"><ThemeToggle /><BackupMenu onRestored={() => router.push("/")} />
           {!sampleActive && <>{hasExistingTopics && <Link href="/" className="ob-button ob-button-quiet">취소하고 대시보드로</Link>}
           <button type="button" className="ob-button" aria-expanded={showSamples} onClick={() => setShowSamples((current) => !current)}>샘플로 둘러보기</button></>}
         </div>

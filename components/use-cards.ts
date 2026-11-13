@@ -24,6 +24,7 @@ export function useCards(enabled = true) {
   const current = useRef(workspace);
   const busy = useRef(false);
   const activeToken = useRef<string | null>(null);
+  const activeSource = useRef(workspace);
   const mounted = useRef(false);
   current.current = workspace;
 
@@ -52,6 +53,7 @@ export function useCards(enabled = true) {
     const requestId = crypto.randomUUID();
     // Persist the attempt before awaiting, including failures and a successful empty result.
     if (!update((previous) => markCardGeneration(previous, date, requestId))) return;
+    activeSource.current = source;
     busy.current = true;
     activeToken.current = requestId;
     setLoading(true);
@@ -82,6 +84,11 @@ export function useCards(enabled = true) {
 
   const requestId = workspace ? getCardState(workspace).request_id : null;
   useEffect(() => {
+    if (activeToken.current !== null && activeToken.current !== requestId && workspace !== activeSource.current) {
+      activeToken.current = null;
+      busy.current = false;
+      setLoading(false);
+    }
     if (!ready || !requestId || mode === "sample" || workspace?.sample) return;
     const task = activeRequests.get(requestId);
     if (!task) {

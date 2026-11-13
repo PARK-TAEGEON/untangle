@@ -11,7 +11,7 @@ import { advanceSampleTopicCards } from "../lib/sample-mode";
 import { isWorkspaceCardRequestActive } from "./use-cards";
 import { useWorkspace } from "./workspace-provider";
 
-interface ActiveRequest { promise: Promise<void>; error: string | null }
+interface ActiveRequest { promise: Promise<void>; error: string | null; settled: boolean }
 const activeRequests = new Map<string, ActiveRequest>();
 const failureMessage = "초안을 준비하지 못했어요. 다시 시도해 주세요.";
 
@@ -35,6 +35,10 @@ export function useTopicCards(topicId: string): { loading: boolean; error: strin
   const requestId = workspace ? getTopicCardRequestId(workspace, topicId) : null;
   useEffect(() => { setError(null); activeToken.current = null; }, [topicId]);
   useEffect(() => {
+    if (activeToken.current !== null && activeToken.current !== requestId && activeRequests.get(activeToken.current)?.settled === false) {
+      activeToken.current = null;
+      setError(null);
+    }
     const request = requestId === null ? undefined : activeRequests.get(requestId);
     setLoading(Boolean(request));
     if (!request) return;
@@ -87,10 +91,11 @@ export function useTopicCards(topicId: string): { loading: boolean; error: strin
     setLoading(true);
     setError(null);
     const requestInput = input;
-    const request: ActiveRequest = { promise: Promise.resolve(), error: null };
+    const request: ActiveRequest = { promise: Promise.resolve(), error: null, settled: false };
     const task = Promise.resolve().then(async () => {
       try {
         if (sourceIsSample) {
+          request.settled = true;
           if (!update((previous) => getTopicCardRequestId(previous, topicId) === token
             ? advanceSampleTopicCards(previous, topicId, new Date().toISOString(), token) : previous)) {
             request.error = "초안을 저장할 수 없어요. 브라우저 저장소를 확인해 주세요.";
@@ -105,10 +110,12 @@ export function useTopicCards(topicId: string): { loading: boolean; error: strin
           request.error = typeof body.error === "string" ? body.error : failureMessage;
           throw new Error(request.error);
         }
+        request.settled = true;
         if (!update((previous) => applyTopicGeneratedCards(previous, topicId, body.nudges!, new Date().toISOString(), token))) {
           request.error = "초안을 저장할 수 없어요. 브라우저 저장소를 확인해 주세요.";
         }
       } catch {
+        request.settled = true;
         request.error ??= failureMessage;
         let relevant = false;
         update((previous) => {

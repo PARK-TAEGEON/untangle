@@ -91,6 +91,11 @@ function isWorkspace(value: unknown): value is WorkspaceData {
   if (!value.topics.every((topic) => topic.theme === null || themeNames.has(topic.theme))) return false;
   if (value.selected_topic_id !== null && !value.topics.some((topic) => topic.id === value.selected_topic_id)) return false;
   if (value.cards !== undefined && !isCardState(value.cards, new Set(value.topics.map((topic) => topic.id)))) return false;
+  if (value.completed_steps !== undefined && (!Array.isArray(value.completed_steps)
+    || !value.completed_steps.every((step) => record(step)
+      && ["id", "card_key", "title", "topic_id", "topic_name"].every((field) => typeof step[field] === "string")
+      && nullableString(step.note) && isoTimestamp(step.completed_at))
+    || new Set(value.completed_steps.map((step) => step.id)).size !== value.completed_steps.length)) return false;
   if (value.sample !== undefined && (!record(value.sample)
     || !["game-developer", "student"].includes(value.sample.persona as string)
     || typeof value.sample.next_round !== "number" || !Number.isSafeInteger(value.sample.next_round) || value.sample.next_round < 0

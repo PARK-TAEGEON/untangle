@@ -2,6 +2,8 @@ import type { ExportData, Profile, SuggestedState, Topic } from "./types";
 import { emptyCardState, getCardState } from "./card-state";
 import type { CardState } from "./card-state";
 import type { SampleMode } from "./sample-mode";
+import { archiveCompletedSteps, completedSteps } from "./history";
+import type { CompletedStep } from "./history";
 
 export interface WorkspaceTopic extends Omit<Topic, "theme"> {
   theme: string | null;
@@ -27,6 +29,7 @@ export interface WorkspaceData {
   later_collapsed: boolean;
   cards?: CardState;
   sample?: SampleMode;
+  completed_steps?: CompletedStep[];
 }
 
 function groupTopics<T extends Pick<Topic, "name" | "sources">>(topics: readonly T[], key: (topic: T) => string): Map<string, T[]> {
@@ -118,6 +121,7 @@ export function confirmOnboarding(
     selected_topic_id: selectedId === null ? null : retained.find(({ previous }) => previous?.id === selectedId)?.topic.id ?? null,
     later_collapsed: existing?.later_collapsed ?? true,
     cards: emptyCardState(),
+    completed_steps: existing ? completedSteps(existing) : [],
   };
 }
 
@@ -129,6 +133,7 @@ function changeTopic(workspace: WorkspaceData, id: string, change: (topic: Works
 export function removeTopic(workspace: WorkspaceData, id: string): WorkspaceData {
   const topic = workspace.topics.find((item) => item.id === id);
   if (!topic) return workspace;
+  workspace = archiveCompletedSteps(workspace);
   const remaining = workspace.topics.filter((item) => item.id !== id);
   const cards = getCardState(workspace);
   return {

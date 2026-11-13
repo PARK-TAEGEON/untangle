@@ -55,7 +55,7 @@ function MarkdownCheckbox({ checked }: ComponentPropsWithoutRef<"input"> & Extra
       if (!context || context.readOnly || task.offset === null) return;
       context.onChange(setTaskChecked(context.content, task.offset, event.target.checked));
     }}
-  /></label>;
+  /><svg className="hs-checkbox-mark" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3.5 8 3 3 6-6" pathLength="1" /></svg></label>;
 }
 
 const markdownComponents: Components = {

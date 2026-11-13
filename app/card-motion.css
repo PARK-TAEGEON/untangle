@@ -1,0 +1,59 @@
+/* Card and draft motion stays within the fast token; reduced motion has no delay. */
+.proposal-card, .small-proposal, .card-empty, .card-skeleton {
+  animation: card-arrive var(--motion-fast) var(--ease-out) both;
+}
+.proposal-card.is-leaving {
+  pointer-events: none;
+  animation: card-leave var(--motion-fast) var(--ease-out) both;
+}
+.proposal-card.is-leaving-snooze { --card-leave-direction: 1; }
+.proposal-card.is-leaving-dismiss { --card-leave-direction: -1; }
+.card-skeleton .thread-empty path {
+  animation: loading-thread-pulse var(--motion-fast) var(--ease-out) infinite;
+}
+
+.hs-checkbox-target { position: relative; }
+.hs-checkbox {
+  appearance: none;
+  border: var(--border-thin) solid var(--color-text-secondary);
+  border-radius: var(--border-focus);
+  background: var(--color-surface);
+  transition: background-color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out);
+}
+.hs-checkbox:checked { border-color: var(--color-ink); background: var(--color-ink); }
+.hs-checkbox:disabled { cursor: default; }
+.hs-checkbox-mark {
+  position: absolute;
+  width: var(--space-4);
+  height: var(--space-4);
+  pointer-events: none;
+  stroke: var(--color-on-ink);
+  stroke-width: var(--thread-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hs-checkbox-mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--motion-fast) var(--ease-out);
+}
+.hs-checkbox:checked + .hs-checkbox-mark path { stroke-dashoffset: 0; }
+
+@keyframes card-arrive {
+  from { opacity: 0; transform: translateY(calc(var(--space-2) * 1)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes card-leave {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(calc(var(--space-6) * var(--card-leave-direction))); }
+}
+@keyframes loading-thread-pulse {
+  0% { stroke-dashoffset: 146; opacity: 0; }
+  65% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .proposal-card, .small-proposal, .card-empty, .card-skeleton, .card-skeleton .thread-empty path { animation: none; }
+  .hs-checkbox, .hs-checkbox-mark path { transition: none; }
+  .card-skeleton .thread-empty path { stroke-dashoffset: 0; opacity: 1; }
+}

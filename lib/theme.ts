@@ -1,3 +1,5 @@
+import { visualTransition } from "./motion";
+
 export type Theme = "light" | "dark";
 
 export const THEME_STORAGE_KEY = "untangle.theme.v1";
@@ -15,9 +17,11 @@ export function getThemeSnapshot(): Theme {
 export function getServerThemeSnapshot(): Theme { return "light"; }
 
 export function setTheme(theme: Theme) {
-  document.documentElement.dataset.theme = theme;
-  try { window.localStorage.setItem(THEME_STORAGE_KEY, theme); } catch { /* The choice still applies in this tab. */ }
-  window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+  visualTransition(() => {
+    document.documentElement.dataset.theme = theme;
+    try { window.localStorage.setItem(THEME_STORAGE_KEY, theme); } catch { /* The choice still applies in this tab. */ }
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+  });
 }
 
 export function subscribeTheme(onChange: () => void) {

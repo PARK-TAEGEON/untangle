@@ -1,0 +1,20 @@
+.done-page { max-width: var(--content-width-today); margin: 0 auto; padding: var(--space-7) 0; display: grid; gap: var(--space-6); }
+.done-heading { display: grid; gap: var(--space-3); }
+.done-empty, .done-step { background: var(--color-surface); border: var(--border-thin) solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); display: grid; gap: var(--space-3); }
+.done-date-group { display: grid; gap: var(--space-4); }
+.done-date-group > h2 { font-size: var(--text-lg); }
+.done-list { display: grid; gap: var(--space-3); padding: 0; margin: 0; list-style: none; }
+.done-topic { color: var(--color-text-secondary); font-size: var(--text-sm); }
+.done-note { white-space: pre-wrap; overflow-wrap: anywhere; }
+.backup-control, .backup-menu { position: relative; }
+.backup-menu > summary { list-style: none; }
+.backup-menu > summary::-webkit-details-marker { display: none; }
+.backup-menu-items { position: absolute; z-index: 5; right: 0; top: calc(var(--touch-min) + var(--space-2)); display: grid; min-width: calc(var(--space-7) * 4); padding: var(--space-2); gap: var(--space-1); background: var(--color-surface); border: var(--border-thin) solid var(--color-border-strong); border-radius: var(--radius-md); }
+.backup-menu-items button { text-align: left; border: 0; }
+.backup-file-input { display: none; }
+.backup-notice { position: fixed; z-index: 10; bottom: var(--space-5); left: var(--space-5); right: var(--space-5); width: fit-content; max-width: calc(100% - var(--space-5) * 2); margin: 0 auto; display: flex; align-items: center; gap: var(--space-4); background: var(--color-surface); border: var(--border-thin) solid var(--color-border-strong); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); }
+.backup-notice button { flex-shrink: 0; }
+.backup-dialog { color: var(--color-ink); background: var(--color-surface); border: var(--border-thin) solid var(--color-border-strong); border-radius: var(--radius-lg); max-width: min(calc(100% - var(--space-6)), calc(var(--space-7) * 14)); max-height: calc(100% - var(--space-6)); padding: var(--space-6); overflow: auto; }
+.backup-dialog[open] { display: grid; gap: var(--space-4); }
+.backup-dialog::backdrop { background: color-mix(in srgb, var(--color-bg) 75%, transparent); }
+.backup-dialog .button-row { margin-top: var(--space-2); }

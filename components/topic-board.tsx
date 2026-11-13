@@ -8,6 +8,7 @@ import { deadlineCaption, todayInSeoul } from "../lib/dates";
 import { selectTopic } from "../lib/workspace";
 import { AppChrome } from "./app-chrome";
 import { TopicMenu, useTopicActions } from "./topic-actions";
+import { TopicFieldEditor } from "./topic-field-editor";
 import { CardSkeleton, TopicName, topicThreadStyle } from "./ui";
 import { useTopicCards } from "./use-topic-cards";
 import { useWorkspaceCards, WorkspaceSmallCard } from "./workspace-cards";
@@ -45,6 +46,14 @@ export function TopicBoard({ topicId }: { topicId: string }) {
       {hero ? renderExpanded(hero) : loading ? <CardSkeleton /> : <div className="topic-card-empty"><p>필요할 때 이 토픽에서 이어갈 한 걸음을 받아보세요.</p><button type="button" className="button button-primary" onClick={() => void generate()}>이 토픽의 한 걸음 받기</button></div>}
       {remaining.length > 0 && <div className="today-card-list">{remaining.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => { setSelectedKey(card.key); document.getElementById("topic-card-main")?.scrollIntoView({ block: "start", behavior: "auto" }); }} />)}</div>}
     </section>
-    <div className="topic-board-context"><ContextSection title="목표" text={topic.goal} /><ContextSection title="현재 상태" text={topic.status_text} /><ContextSection title="지금까지 만든 것" items={topic.outputs} /><ContextSection title="최근 결정" items={topic.recent_decisions} /><ContextSection title="막힌 점" text={topic.blockers} /><ContextSection title="다음 할 일" items={topic.next_steps} />{topic.related.length > 0 && <ContextSection title="관련 대화 주제" items={topic.related} />}{sources.length > 0 && <ContextSection title="출처" items={sources} />}{topic.deadline_text && <ContextSection title="그 밖의 일정" text={topic.deadline_text} />}{Boolean(topic.notes?.length) && <ContextSection title="남겨둔 메모" items={topic.notes} />}</div>
+    <div className="topic-board-context">
+      <TopicFieldEditor key={`${topicId}-status`} topicId={topicId} field="status_text" title="지금 상태" value={topic.status_text} />
+      <TopicFieldEditor key={`${topicId}-steps`} topicId={topicId} field="next_steps" title="다음 할 일" value={topic.next_steps} />
+      <ContextSection title="막힌 점" text={topic.blockers} />
+      <details className="topic-more-context animated-disclosure"><summary>더 보기</summary><div className="disclosure-content"><div className="topic-more-sections">
+        <ContextSection title="목표" text={topic.goal} /><ContextSection title="지금까지 만든 것" items={topic.outputs} /><ContextSection title="최근 결정" items={topic.recent_decisions} />
+        {topic.related.length > 0 && <ContextSection title="관련 대화 주제" items={topic.related} />}{sources.length > 0 && <ContextSection title="출처" items={sources} />}{topic.deadline_text && <ContextSection title="그 밖의 일정" text={topic.deadline_text} />}{Boolean(topic.notes?.length) && <ContextSection title="남겨둔 메모" items={topic.notes} />}
+      </div></div></details>
+    </div>
   </main>{notice}</AppChrome>;
 }

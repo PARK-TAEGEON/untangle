@@ -1,5 +1,6 @@
 import type { CardFeedback, CardInput, Nudge } from "./card-types";
 import type { WorkspaceData, WorkspaceTopic } from "./workspace";
+import { archiveCompletedSteps } from "./history";
 
 export type SavedCardStatus = "pending" | "accepted" | "snoozed" | "completed" | "dismissed";
 
@@ -264,14 +265,14 @@ function recordFeedback(workspace: WorkspaceData, key: string, result: CardFeedb
 export function completeCard(workspace: WorkspaceData, key: string, note: string | null, now: string): WorkspaceData {
   const card = getCardState(workspace).items.find((item) => item.key === key);
   if (!card || !actionable(card)) return workspace;
-  const next = changeCard(workspace, key, (item) => ({ ...item, status: "completed", resolved_at: now, snoozed_until: null }));
-  return recordFeedback(next, key, "completed", note?.trim() || null);
+  const next = changeCard(archiveCompletedSteps(workspace), key, (item) => ({ ...item, status: "completed", resolved_at: now, snoozed_until: null }));
+  return archiveCompletedSteps(recordFeedback(next, key, "completed", note?.trim() || null));
 }
 
 export function dismissCard(workspace: WorkspaceData, key: string, now: string): WorkspaceData {
   const card = getCardState(workspace).items.find((item) => item.key === key);
   if (!card || !actionable(card)) return workspace;
-  const next = changeCard(workspace, key, (item) => ({ ...item, status: "dismissed", resolved_at: now, snoozed_until: null }));
+  const next = changeCard(archiveCompletedSteps(workspace), key, (item) => ({ ...item, status: "dismissed", resolved_at: now, snoozed_until: null }));
   return recordFeedback(next, key, "dismissed", null);
 }
 
@@ -279,7 +280,7 @@ export function snoozeCard(workspace: WorkspaceData, key: string, today: string)
   const card = getCardState(workspace).items.find((item) => item.key === key);
   if (!card || !actionable(card)) return workspace;
   const until = new Date(calendarTime(today) + DAY_MS).toISOString().slice(0, 10);
-  const next = changeCard(workspace, key, (item) => ({ ...item, status: "snoozed", snoozed_until: until }));
+  const next = changeCard(archiveCompletedSteps(workspace), key, (item) => ({ ...item, status: "snoozed", snoozed_until: until }));
   return recordFeedback(next, key, "snoozed", null);
 }
 

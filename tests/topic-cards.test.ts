@@ -191,6 +191,26 @@ afterEach(async () => {
 });
 
 describe("explicit topic request lifetime", () => {
+  it("clears imported topic guards and ignores an old response while a newer explicit request stays loading", async () => {
+    const oldRequest = deferred();
+    const newRequest = deferred();
+    fetchMock.mockReturnValueOnce(oldRequest.promise).mockReturnValueOnce(newRequest.promise);
+    await render();
+    await start();
+    expect(latest.loading).toBe(true);
+    await act(async () => { expect(store.restore(withCards())).toBe(true); });
+    expect(latest.loading).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await start();
+    expect(latest.loading).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await resolve(oldRequest, [{ ...card, title: "옛 요청의 카드" }]);
+    expect(latest.loading).toBe(true);
+    expect(store.workspace?.cards?.items.some((item) => item.nudge.title === "옛 요청의 카드")).toBe(false);
+    await resolve(newRequest, [{ ...card, title: "새 요청의 카드" }]);
+    expect(latest.loading).toBe(false);
+    expect(store.workspace?.cards?.items.some((item) => item.nudge.title === "새 요청의 카드")).toBe(true);
+  });
   it("never fetches on mount, navigation or date change", async () => {
     await render();
     await render(false);

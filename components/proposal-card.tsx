@@ -36,6 +36,7 @@ export interface ProposalCardProps {
   accepted?: boolean;
   stale?: boolean;
   finishing?: boolean;
+  leaving?: "snooze" | "dismiss";
   onContentChange: (content: string) => void;
   onAccept: () => void;
   onComplete: (note: string) => void;
@@ -54,7 +55,7 @@ export function SmallProposal({ nudge, topic, themeIndex = -1, accepted, stale, 
   </button>;
 }
 
-export function ProposalCard({ nudge, content, topic, themeIndex = -1, accepted, stale, finishing, onContentChange, onAccept, onComplete, onSnooze, onDismiss, onAnswer, onContinue }: ProposalCardProps) {
+export function ProposalCard({ nudge, content, topic, themeIndex = -1, accepted, stale, finishing, leaving, onContentChange, onAccept, onComplete, onSnooze, onDismiss, onAnswer, onContinue }: ProposalCardProps) {
   const id = useId();
   const [completing, setCompleting] = useState(false);
   const [note, setNote] = useState("");
@@ -73,11 +74,11 @@ export function ProposalCard({ nudge, content, topic, themeIndex = -1, accepted,
     }
   }
 
-  return <article className={`proposal-card proposal-${nudge.slot}${finishing ? " is-finishing" : ""}`} style={topicThreadStyle(themeIndex)} aria-labelledby={`${id}-title`} inert={finishing}>
+  return <article className={`proposal-card proposal-${nudge.slot}${finishing ? " is-finishing" : ""}${leaving ? ` is-leaving is-leaving-${leaving}` : ""}`} style={topicThreadStyle(themeIndex)} aria-labelledby={`${id}-title`} inert={Boolean(finishing || leaving)}>
     <ThreadDrawing variant="card" straight={finishing} />
     <div className="proposal-meta"><TopicName name={topic?.name ?? nudge.new_topic_name ?? "새로운 연결"} themeIndex={themeIndex} /><span className="proposal-time">{nudge.est_minutes}분</span></div>
     <header className="proposal-heading"><h2 id={`${id}-title`}>{nudge.title}</h2></header>
-    <details className="proposal-why"><summary>왜?</summary><p>{nudge.why_now}</p><p className="proposal-action">{nudge.action}</p><ul className="proposal-evidence">{nudge.evidence.map((entry, index) => <li key={index}><span className="chip">{entry.source === "topic" ? "토픽" : entry.source === "profile" ? "프로필" : "피드백"}</span>{entry.fact}</li>)}</ul></details>
+    <details className="proposal-why animated-disclosure"><summary>왜?</summary><div className="disclosure-content"><p>{nudge.why_now}</p><p className="proposal-action">{nudge.action}</p><ul className="proposal-evidence">{nudge.evidence.map((entry, index) => <li key={index}><span className="chip">{entry.source === "topic" ? "토픽" : entry.source === "profile" ? "프로필" : "피드백"}</span>{entry.fact}</li>)}</ul></div></details>
     <section className="proposal-draft" aria-label="준비된 초안"><div className="draft-label"><span className="section-kicker">초안</span></div><HeadStart content={content} onChange={onContentChange} /></section>
     {nudge.type === "unblock" && <div className="question-options" aria-label="질문의 답 고르기">{nudge.head_start.options.map((option) => <button key={option.id} type="button" className="button" onClick={() => onAnswer(option.id)}>{option.label}</button>)}</div>}
     <div className="first-step"><span className="first-step-symbol" aria-hidden="true">↳</span><div><strong>먼저 이것만</strong><p>{nudge.first_step}</p></div></div>

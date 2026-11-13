@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "./card-motion.css";
+import "./topic-refinements.css";
+import "./history-backup.css";
+import "./page-polish.css";
 import { WorkspaceProvider } from "../components/workspace-provider";
+import { AppTransitions } from "../components/app-transitions";
 import { THEME_INIT_SCRIPT } from "../lib/theme";
 
 const pretendard = localFont({
@@ -21,10 +26,14 @@ const instrumentSerif = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Untangle",
-  description: "흩어진 AI 대화에서 프로젝트를 정리하고 다음 한 걸음을 이어가세요.",
+  metadataBase: new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || "untangle-self-mu.vercel.app"}`),
+  title: { default: "Untangle — One thread at a time.", template: "%s · Untangle" },
+  description: "흩어진 AI 대화 속 프로젝트를 정리하고, 준비된 초안으로 오늘의 한 걸음을 이어가세요.",
+  applicationName: "Untangle",
+  openGraph: { title: "Untangle — One thread at a time.", description: "흩어진 AI 대화 속 프로젝트를 정리하고, 준비된 초안으로 오늘의 한 걸음을 이어가세요.", siteName: "Untangle", locale: "ko_KR", type: "website" },
+  twitter: { card: "summary_large_image", title: "Untangle — One thread at a time.", description: "프로젝트를 정리하고 오늘의 한 걸음을 이어가세요." },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="ko" className={`${pretendard.variable} ${instrumentSerif.variable}`} suppressHydrationWarning><head><script id="theme-init" dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} /></head><body><WorkspaceProvider>{children}</WorkspaceProvider></body></html>;
+  return <html lang="ko" className={`${pretendard.variable} ${instrumentSerif.variable}`} suppressHydrationWarning><head><script id="theme-init" dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} /></head><body><WorkspaceProvider><AppTransitions>{children}</AppTransitions></WorkspaceProvider></body></html>;
 }

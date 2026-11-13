@@ -64,6 +64,17 @@ async function click(element: Element | null) {
   expect(element).not.toBeNull();
   await act(async () => { (element as HTMLElement).click(); });
 }
+async function fillTextarea(value: string) {
+  const textarea = container.querySelector(".topic-field-form textarea") as HTMLTextAreaElement;
+  expect(textarea).not.toBeNull();
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!.call(textarea, value);
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+async function submitField() {
+  await act(async () => { container.querySelector(".topic-field-form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })); });
+}
 function button(text: string) { return [...container.querySelectorAll("button")].find((element) => element.textContent?.trim() === text) ?? null; }
 
 beforeEach(() => {
@@ -90,7 +101,7 @@ describe("separate today and topic pages", () => {
     saveWorkspace(window.localStorage, data);
     await render(createElement(Dashboard));
     expect(container.querySelector("nav a[aria-current='page']")?.textContent).toBe("오늘");
-    expect(container.querySelectorAll("nav a")).toHaveLength(2);
+    expect(container.querySelectorAll("nav a")).toHaveLength(3);
     expect(container.querySelector(".home-title h1[lang='en']")?.textContent).toBe("One thread at a time.");
     expect(container.querySelector(".home-title p")).toBeNull();
     expect(container.querySelector(".topic-board-context")).toBeNull();
@@ -139,9 +150,12 @@ describe("separate today and topic pages", () => {
     expect(header?.nextElementSibling?.id).toBe("topic-card-main");
     expect(header?.nextElementSibling?.nextElementSibling?.className).toBe("topic-board-context");
     expect(container.textContent).toContain("첫 프로젝트의 가상 목표");
-    for (const title of ["목표", "현재 상태", "지금까지 만든 것", "최근 결정", "막힌 점", "다음 할 일"]) {
+    for (const title of ["목표", "지금 상태", "지금까지 만든 것", "최근 결정", "막힌 점", "다음 할 일"]) {
       expect([...container.querySelectorAll(".topic-board-context h2")].some((heading) => heading.textContent === title)).toBe(true);
     }
+    expect([...container.querySelectorAll(".topic-board-context > .detail-section h2")].map((heading) => heading.textContent)).toEqual(["지금 상태", "다음 할 일", "막힌 점"]);
+    expect(container.querySelector(".topic-more-context")?.hasAttribute("open")).toBe(false);
+    expect(container.querySelector(".topic-more-context summary")?.textContent).toBe("더 보기");
     expect(container.querySelectorAll(".proposal-card")).toHaveLength(1);
     expect(container.querySelector(".proposal-card .thread-card")).not.toBeNull();
     expect(container.querySelector(".proposal-card h2")?.textContent).toBe("첫 걸음 확인하기");
@@ -160,6 +174,45 @@ describe("separate today and topic pages", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body)).topics.map((topic: { id: string }) => topic.id)).toEqual(["t1"]);
     expect(container.querySelector(".proposal-card h2")?.textContent).toBe("직접 받은 한 걸음");
+  });
+
+  it("persists inline status and next-step edits and sends them in the next manual request", async () => {
+    const data = workspace(); data.cards!.items = [];
+    saveWorkspace(window.localStorage, data);
+    await render(createElement(TopicBoard, { topicId: "t1" }));
+    await click(container.querySelector("button[aria-label='지금 상태 고치기']"));
+    await fillTextarea("테스트 자료를 검토했어요.");
+    await submitField();
+    await click(container.querySelector("button[aria-label='다음 할 일 고치기']"));
+    await fillTextarea("첫 문장 확인\n\n 다음 문장 확정 ");
+    await submitField();
+    const saved = loadWorkspace(window.localStorage)!;
+    expect(saved.topics[0].status_text).toBe("테스트 자료를 검토했어요.");
+    expect(saved.topics[0].next_steps).toEqual(["첫 문장 확인", "다음 문장 확정"]);
+    expect(saved.topics[1]).toEqual(data.topics[1]);
+    expect(saved.cards).toEqual(data.cards);
+    expect(fetchMock).not.toHaveBeenCalled();
+    await click(button("이 토픽의 한 걸음 받기"));
+    const input = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
+    expect(input.topics[0]).toMatchObject({ status_text: "테스트 자료를 검토했어요.", next_steps: ["첫 문장 확인", "다음 문장 확정"] });
+  });
+
+  it("keeps the original saved field and typed draft when storage fails, and supports cancel", async () => {
+    await render(createElement(TopicBoard, { topicId: "t1" }));
+    const original = loadWorkspace(window.localStorage)!.topics[0].status_text;
+    await click(container.querySelector("button[aria-label='지금 상태 고치기']"));
+    await fillTextarea("저장을 다시 시도할 가상 내용");
+    const write = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => { throw new DOMException("quota", "QuotaExceededError"); });
+    try {
+      await submitField();
+      expect(container.querySelector<HTMLTextAreaElement>(".topic-field-form textarea")?.value).toBe("저장을 다시 시도할 가상 내용");
+      expect(container.querySelector(".topic-field-form [role='alert']")?.textContent).toContain("입력한 내용은 남겨두었어요");
+      expect(loadWorkspace(window.localStorage)!.topics[0].status_text).toBe(original);
+      await click(button("취소"));
+      expect(container.querySelector(".topic-field-form")).toBeNull();
+      expect(container.querySelector(".topic-editable-field")?.textContent).toContain(original);
+    } finally { write.mockRestore(); }
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("keeps the last deleted board's undo available and restores its card without automatic requests", async () => {
