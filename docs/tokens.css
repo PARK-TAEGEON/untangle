@@ -48,6 +48,7 @@
   --text-2xl: 40px;  /* 첫 카드 제목, 화면 제목 */
   --text-draft: 15px;
   --text-display: 40px; /* 홈의 영어 강조 문구 */
+  --text-welcome: 72px; /* 로비의 이름 */
   --leading-body: 1.55;
   --leading-title: 1.2;
   --tracking-title: -1px;    /* --text-2xl 에 */
@@ -86,12 +87,14 @@
   --theme-box-width: 280px;
   --icon-size: 20px;
   --today-aside-width: 360px;
+  --welcome-thread-width: 640px;
   --motion-rise: 8px;
   --motion-hover: 2px;
 
-  /* 움직임: 300ms 이하, 기기 움직임 줄이기 설정에서 모두 끈다 */
+  /* 조작 움직임은 300ms 이하. 로비의 첫 선 그림만 1.2초이며 한 번 재생한다. */
   --motion-fast: 200ms;
   --motion-thread: 200ms;
+  --motion-welcome: 1200ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -144,5 +147,6 @@
   :root {
     --motion-fast: 0ms;
     --motion-thread: 0ms;
+    --motion-welcome: 0ms;
   }
 }

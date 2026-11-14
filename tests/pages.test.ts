@@ -7,11 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Dashboard } from "../components/dashboard";
 import { TopicBoard } from "../components/topic-board";
 import { Topics } from "../components/topics";
+import { Onboarding } from "../components/onboarding";
+import { Brand } from "../components/ui";
 import { WorkspaceProvider } from "../components/workspace-provider";
 import { acceptCard, applyGeneratedCards } from "../lib/card-state";
 import type { Nudge } from "../lib/card-types";
 import { parseExport } from "../lib/parse";
-import { loadWorkspace, saveWorkspace } from "../lib/storage";
+import { loadWorkspace, saveWorkspace, SAMPLE_WORKSPACE_STORAGE_KEY, WORKSPACE_MODE_STORAGE_KEY } from "../lib/storage";
+import { createSampleWorkspace } from "../lib/sample-mode";
 import { confirmOnboarding } from "../lib/workspace";
 
 const navigation = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
@@ -96,6 +99,49 @@ afterEach(async () => {
 });
 
 describe("separate today and topic pages", () => {
+  it.each(["missing", "empty"] as const)("redirects %s stored topics to welcome without generating cards", async (kind) => {
+    if (kind === "missing") window.localStorage.clear();
+    else {
+      const data = workspace();
+      data.topics = []; data.cards!.items = []; data.cards!.generated_date = null;
+      saveWorkspace(window.localStorage, data);
+    }
+    await render(createElement(Dashboard));
+    expect(navigation.replace).toHaveBeenCalledWith("/welcome");
+    expect(container.querySelector(".today-page")).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps a saved personal workspace on today", async () => {
+    await render(createElement(Dashboard));
+    expect(navigation.replace).not.toHaveBeenCalled();
+    expect(container.querySelector(".today-page")).not.toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps a saved sample workspace on today without paid generation", async () => {
+    saveWorkspace(window.localStorage, createSampleWorkspace("student", NOW, TODAY), SAMPLE_WORKSPACE_STORAGE_KEY);
+    window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, "sample");
+    await render(createElement(Dashboard));
+    expect(navigation.replace).not.toHaveBeenCalled();
+    expect(container.querySelector(".today-page")).not.toBeNull();
+    expect(container.querySelector(".sample-banner")?.textContent).toContain("샘플 데이터로 보는 중");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("uses the accessible line-only brand to return to welcome, including onboarding", async () => {
+    for (const page of [createElement(Brand), createElement(Onboarding, { exportPrompt: "가상 내보내기 문구" })]) {
+      await render(page);
+      const brand = container.querySelector("a.brand");
+      expect(brand?.getAttribute("href")).toBe("/welcome");
+      expect(brand?.getAttribute("aria-label")).toBe("Untangle 처음 화면");
+      expect(brand?.querySelector("svg.thread-logo")).not.toBeNull();
+      expect(brand?.querySelector(".brand-wordmark")).toBeNull();
+      expect(brand?.textContent).toBe("");
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("keeps today as cards even when an old selected topic ID exists and promotes a smaller card", async () => {
     const data = workspace(); data.selected_topic_id = "t2";
     saveWorkspace(window.localStorage, data);

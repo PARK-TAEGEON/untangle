@@ -22,8 +22,8 @@ export function ThreadDrawing({ variant, themes = 3, straight = false }: { varia
   return <svg className={`thread-drawing thread-${variant}${straight ? " is-straight" : ""}`} viewBox={variant === "logo" ? "0 0 44 24" : "0 0 150 28"} fill="none" aria-hidden="true"><path d={variant === "logo" ? LOGO : variant === "card" ? CARD : "M2 14H148"} /></svg>;
 }
 
-export function Brand({ href = "/" }: { href?: string }) {
-  return <Link href={href} className="brand"><ThreadDrawing variant="logo" /><span className="brand-wordmark">untangle</span></Link>;
+export function Brand() {
+  return <Link href="/welcome" className="brand" aria-label="Untangle 처음 화면"><ThreadDrawing variant="logo" /></Link>;
 }
 
 export function TopicName({ name, themeIndex = 0, starred, children }: { name: string; themeIndex?: number; starred?: boolean; children?: ReactNode }) {

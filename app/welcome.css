@@ -1,0 +1,18 @@
+.welcome-page { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: var(--space-7) var(--space-5); }
+.welcome-content { width: min(100%, var(--content-width-today)); text-align: center; display: grid; justify-items: center; }
+.welcome-drawing { width: min(100%, var(--welcome-thread-width)); height: auto; stroke: var(--color-ink); }
+.welcome-drawing path { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.welcome-knot { animation: welcome-unthread calc(var(--motion-welcome) * 0.65) var(--ease-out) both; }
+.welcome-thread-tail { stroke: var(--thread-1); animation: welcome-unthread calc(var(--motion-welcome) * 0.35) var(--ease-out) calc(var(--motion-welcome) * 0.65) both; }
+.welcome-page h1 { margin-top: var(--space-5); font-family: var(--font-display); font-size: var(--text-welcome); font-weight: var(--weight-regular); letter-spacing: normal; }
+.welcome-tagline { margin-top: var(--space-3); font-family: var(--font-display); font-size: clamp(var(--text-xs), 3.4vw, var(--text-xl)); font-style: italic; white-space: nowrap; }
+.welcome-description { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary); }
+.welcome-actions { margin-top: var(--space-7); display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-3); }
+.welcome-actions .button { min-height: var(--button-primary); }
+.welcome-actions [aria-disabled="true"] { pointer-events: none; }
+.welcome-error { margin-top: var(--space-5); font-size: var(--text-sm); }
+.welcome-samples { margin-top: var(--space-6); width: min(100%, var(--welcome-thread-width)); border-top: var(--border-thin) solid var(--color-border); padding-top: var(--space-5); }
+.welcome-samples > p { margin-top: var(--space-2); font-size: var(--text-sm); }
+.welcome-samples .sample-personas { margin-top: var(--space-4); }
+@keyframes welcome-unthread { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .welcome-drawing path { animation: none; stroke-dashoffset: 0; } }

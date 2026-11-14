@@ -12,12 +12,12 @@ import { useWorkspace } from "./workspace-provider";
 export function Dashboard() {
   const { workspace, ready, update } = useWorkspace();
   const [leavingSample, setLeavingSample] = useState(false);
-  const { today, loading, generate } = useCards(!leavingSample);
+  const { today, loading, generate } = useCards(!leavingSample && Boolean(workspace?.topics.length));
   const { finishing, renderExpanded } = useWorkspaceCards();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const router = useRouter();
-  useEffect(() => { if (ready && (!workspace || workspace.topics.length === 0)) router.replace("/start"); }, [ready, workspace, router]);
-  if (!ready || !workspace) return <main className="app-loading" role="status">저장한 프로젝트를 불러오고 있어요.</main>;
+  useEffect(() => { if (ready && (!workspace || workspace.topics.length === 0)) router.replace("/welcome"); }, [ready, workspace, router]);
+  if (!ready || !workspace || workspace.topics.length === 0) return <main className="app-loading" role="status">저장한 프로젝트를 불러오고 있어요.</main>;
   const cards = visibleCards(workspace, today);
   const hero = finishing ?? cards.find((card) => card.key === selectedKey) ?? cards.find((card) => card.nudge.slot === "focus" && !isAcceptedUnfinished(card)) ?? cards[0];
   const remaining = cards.filter((card) => card.key !== hero?.key);

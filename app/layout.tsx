@@ -5,6 +5,7 @@ import "./card-motion.css";
 import "./topic-refinements.css";
 import "./history-backup.css";
 import "./page-polish.css";
+import "./welcome.css";
 import { WorkspaceProvider } from "../components/workspace-provider";
 import { AppTransitions } from "../components/app-transitions";
 import { THEME_INIT_SCRIPT } from "../lib/theme";
@@ -28,10 +29,10 @@ const instrumentSerif = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || "untangle-self-mu.vercel.app"}`),
   title: { default: "Untangle — One thread at a time.", template: "%s · Untangle" },
-  description: "흩어진 AI 대화 속 프로젝트를 정리하고, 준비된 초안으로 오늘의 한 걸음을 이어가세요.",
+  description: "Every knot gives way, one thread at a time.",
   applicationName: "Untangle",
-  openGraph: { title: "Untangle — One thread at a time.", description: "흩어진 AI 대화 속 프로젝트를 정리하고, 준비된 초안으로 오늘의 한 걸음을 이어가세요.", siteName: "Untangle", locale: "ko_KR", type: "website" },
-  twitter: { card: "summary_large_image", title: "Untangle — One thread at a time.", description: "프로젝트를 정리하고 오늘의 한 걸음을 이어가세요." },
+  openGraph: { title: "Untangle — One thread at a time.", description: "Every knot gives way, one thread at a time.", siteName: "Untangle", locale: "ko_KR", type: "website" },
+  twitter: { card: "summary_large_image", title: "Untangle — One thread at a time.", description: "Every knot gives way, one thread at a time." },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

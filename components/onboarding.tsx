@@ -126,7 +126,7 @@ export function Onboarding({ exportPrompt }: { exportPrompt: string }) {
   return (
     <main className="ob-shell">
       <header className="ob-header">
-        <Brand href={hasExistingTopics || sampleActive ? "/" : "/start"} />
+        <Brand />
         <div className="ob-header-actions"><ThemeToggle /><BackupMenu onRestored={() => router.push("/")} />
           {!sampleActive && <>{hasExistingTopics && <Link href="/" className="ob-button ob-button-quiet">취소하고 대시보드로</Link>}
           <button type="button" className="ob-button" aria-expanded={showSamples} onClick={() => setShowSamples((current) => !current)}>샘플로 둘러보기</button></>}
