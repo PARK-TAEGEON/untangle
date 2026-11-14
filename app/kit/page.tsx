@@ -92,7 +92,7 @@ export default function KitPage() {
   const [stars, setStars] = useState<Record<string, boolean>>({ "kit-topic-1": true });
 
   return <main className="kit-shell">
-    <header className="kit-header"><Brand /><nav className="app-nav" aria-label="주 메뉴"><Link href="/">오늘</Link><Link href="/topics">토픽</Link></nav><ThemeToggle /></header>
+    <header className="kit-header"><Brand /><nav className="app-nav" aria-label="주 메뉴"><Link href="/">오늘</Link><Link href="/topics">현재 토픽</Link></nav><ThemeToggle /></header>
     <section className="kit-section">
       <p className="eyebrow">실타래 · 디자인 v0.2</p><h1>한 걸음을 만드는 부품들</h1>
       <p>직접 지어낸 가상 예시입니다. 여기서 고친 내용은 이 페이지 안에서만 바뀌어요.</p>
@@ -103,7 +103,7 @@ export default function KitPage() {
       <h2 id="kit-flow-title">오늘에서 토픽 보드까지</h2>
       <div className="kit-flow-grid">
         <article className="kit-flow-card"><h3>오늘</h3><p>가장 먼저 이어갈 카드 한 장과 다른 제안을 한 열로 살펴봐요.</p><Link href="/">오늘 보기</Link></article>
-        <article className="kit-flow-card"><h3>토픽</h3><p>테마별로 모은 프로젝트 상자에서 할 일을 고르고 나중에 볼 일도 꺼내요.</p><Link href="/topics">토픽 보기</Link></article>
+        <article className="kit-flow-card"><h3>현재 토픽</h3><p>테마별로 모은 프로젝트 상자에서 할 일을 고르고 나중에 볼 일도 꺼내요.</p><Link href="/topics">현재 토픽 보기</Link></article>
         <article className="kit-flow-card"><h3>토픽 보드</h3><p>한 프로젝트의 목표·기록·제안을 같은 공간에서 이어가요.</p><span className="muted">토픽 이름을 누르면 열려요.</span></article>
       </div>
       <p className="muted">토픽 목록의 개수는 제한하지 않아요. 제안을 요청할 때 보낼 토픽만 최대 9개를 고릅니다.</p>

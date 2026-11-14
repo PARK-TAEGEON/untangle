@@ -29,7 +29,7 @@ export function TopicBoard({ topicId }: { topicId: string }) {
   useEffect(() => { if (ready && !workspace) router.replace("/start"); else if (ready && workspace && !topic && !hasUndo) router.replace("/topics"); }, [ready, workspace, topic, hasUndo, router]);
   useEffect(() => { if (ready && topic) update((previous) => selectTopic(previous, topic.id, new Date().toISOString())); }, [ready, topic?.id, update]);
   if (!ready || !workspace) return <main className="app-loading" role="status">토픽을 불러오고 있어요.</main>;
-  if (!topic) return <AppChrome active="topics"><main className="topic-board-page"><Link href="/topics" className="button button-quiet">← 토픽 목록으로</Link><p role="status">이 토픽은 목록에서 빠졌어요.</p></main>{notice}</AppChrome>;
+  if (!topic) return <AppChrome active="topics"><main className="topic-board-page"><Link href="/topics" className="button button-quiet">← 현재 토픽으로</Link><p role="status">이 토픽은 목록에서 빠졌어요.</p></main>{notice}</AppChrome>;
   const today = workspace.sample?.baseline_date ?? todayInSeoul();
   const cards = visibleCards(workspace, today).filter((card) => card.nudge.topic_id === topicId);
   const finishingHere = finishing?.nudge.topic_id === topicId ? finishing : null;
@@ -39,7 +39,7 @@ export function TopicBoard({ topicId }: { topicId: string }) {
   const caption = deadlineCaption(topic.deadline, today);
   const sources = topic.sources.filter((source) => source !== "other").map((source) => source === "chatgpt" ? "ChatGPT" : "Claude");
   return <AppChrome active="topics"><main className="topic-board-page" style={topicThreadStyle(themeIndex)}>
-    <Link href="/topics" className="button button-quiet back-link">← 토픽 목록으로</Link>
+    <Link href="/topics" className="button button-quiet back-link">← 현재 토픽으로</Link>
     <header className="topic-board-header"><div className="detail-eyebrow"><span className="chip">{topic.theme ?? "따로 뺀 토픽"}</span><span className="chip">{topic.state === "active" ? "활성" : "나중에"}</span></div><div className="topic-board-title"><h1><TopicName name={topic.name} themeIndex={themeIndex} starred={topic.starred} /></h1><TopicMenu topic={topic} workspace={workspace} onAction={onAction} /></div><p className="topic-one-liner">{topic.one_liner}</p>{caption && <p className="deadline-note">{caption} · {topic.deadline}{topic.deadline_label ? ` · ${topic.deadline_label}` : ""}</p>}</header>
     <section id="topic-card-main" className="topic-board-cards" aria-label="이 토픽의 한 걸음"><header className="section-heading"><h2>이 토픽의 한 걸음</h2></header>
       {error && <p className="app-error" role="alert">{error}</p>}

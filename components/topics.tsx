@@ -36,7 +36,7 @@ export function Topics() {
   const themes = workspace.themes.filter((theme) => active.some((topic) => topic.theme === theme.name));
   const separate = sortTopics(active.filter((topic) => topic.theme === null));
   return <AppChrome active="topics"><main className="topics-page">
-    <header className="topics-heading"><div><p className="eyebrow">각자의 속도로 이어가는 일</p><h1>나의 토픽</h1></div><span className="count-chip">활성 {active.length}</span></header>
+    <header className="topics-heading"><div><p className="eyebrow">각자의 속도로 이어가는 일</p><h1>현재 토픽</h1></div><span className="count-chip">활성 {active.length}</span></header>
     {workspace.topics.length === 0 && <section className="topics-empty"><h2>아직 담긴 토픽이 없어요.</h2><p>대화에서 진행하던 일을 가져와 보세요.</p><Link href="/start" className="button button-primary">대화에서 가져오기</Link></section>}
     <div className="topics-groups">{themes.map((theme) => {
       const members = sortTopics(active.filter((topic) => topic.theme === theme.name));

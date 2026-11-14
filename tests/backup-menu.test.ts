@@ -167,7 +167,7 @@ describe("completed page", () => {
     expect(container.textContent).toContain("첫 메모");
     expect(container.textContent).toContain("둘째 메모");
     expect(container.querySelector(".done-topic")?.textContent).toBe("가상 프로젝트");
-    expect(container.querySelector("nav [aria-current='page']")?.textContent).toBe("지나온 걸음");
+    expect(container.querySelector("nav [aria-current='page']")?.textContent).toBe("지난 토픽");
     expect(fetch).not.toHaveBeenCalled();
   });
 });

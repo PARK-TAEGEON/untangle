@@ -174,7 +174,7 @@ describe("separate today and topic pages", () => {
     data.themes.push({ name: "활성이 없는 테마", collapsed: false });
     saveWorkspace(window.localStorage, data);
     await render(createElement(Topics));
-    expect(container.querySelector("nav a[aria-current='page']")?.textContent).toBe("토픽");
+    expect(container.querySelector("nav a[aria-current='page']")?.textContent).toBe("현재 토픽");
     expect(container.querySelectorAll(".topics-grid > .topic-tile")).toHaveLength(2);
     expect(container.querySelector(".topic-tile-link")?.getAttribute("href")).toBe("/topics/t1");
     expect(container.textContent).toContain("첫 번째 가상 프로젝트 설명");

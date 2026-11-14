@@ -68,7 +68,7 @@ export function BackupMenu({ onRestored }: { onRestored?: () => void }) {
     {message && <div className="backup-notice" role="status"><span>{message}</span><button type="button" className="button-quiet" onClick={() => setMessage(null)}>닫기</button></div>}
     {pending && <dialog ref={dialog} className="backup-dialog" aria-labelledby="backup-dialog-title" aria-describedby="backup-dialog-description" onCancel={(event) => { event.preventDefault(); cancel(); }}>
       <h2 id="backup-dialog-title">백업으로 바꿀까요?</h2><p className="muted">{pending.name}</p>
-      <p id="backup-dialog-description">토픽 {pending.data.topics.length}개와 지나온 걸음 {pending.data.completed_steps?.length ?? 0}개를 가져와요. 현재 {mode === "sample" ? "샘플" : "내"} 기록을 이 파일의 내용으로 교체합니다.</p>
+      <p id="backup-dialog-description">토픽 {pending.data.topics.length}개와 지난 토픽 {pending.data.completed_steps?.length ?? 0}개를 가져와요. 현재 {mode === "sample" ? "샘플" : "내"} 기록을 이 파일의 내용으로 교체합니다.</p>
       <p className="muted">다른 모드의 기록은 그대로 보관해요.</p>
       {importError && <p role="alert">{importError}</p>}
       <div className="button-row"><button type="button" className="button button-secondary" autoFocus onClick={cancel}>취소</button><button type="button" className="button button-primary" onClick={() => {
