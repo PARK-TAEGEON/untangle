@@ -11,6 +11,7 @@ import { useWorkspace } from "./workspace-provider";
 import { usePreferences } from "./use-preferences";
 import { useTodayRoster } from "./use-today-roster";
 import { TodayThreads } from "./today-threads";
+import { TodayGuide } from "./today-guide";
 
 export function Dashboard() {
   const { cardLimit } = usePreferences();
@@ -36,6 +37,7 @@ export function Dashboard() {
   return <AppChrome active="today" onBeforeSampleExit={() => setLeavingSample(true)} onSampleExitFailed={() => setLeavingSample(false)}>
     <main id="home-main" className="today-page">
       <div className="home-intro"><div className="home-title"><h1 lang="en">One thread at a time.</h1><TodayThreads cards={threads} workspace={workspace} /></div><button type="button" className="button button-secondary" disabled={loading} onClick={() => void generate()}>{loading ? "준비하고 있어요" : "새 제안 받기"}</button></div>
+      <TodayGuide />
       <div className={`today-columns${remaining.length > 0 || (error && cards.length > 0) ? " has-aside" : ""}`}>
         <div className="today-primary">{loading ? <CardSkeleton /> : error ? <CardEmpty failed message={error} onGenerate={() => void generate()} /> : hero ? renderExpanded(hero) : <CardEmpty onGenerate={() => void generate()} />}</div>
         {(remaining.length > 0 || (error && cards.length > 0)) && <aside className="today-other-cards">

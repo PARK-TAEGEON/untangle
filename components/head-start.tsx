@@ -6,6 +6,7 @@ import Markdown from "react-markdown";
 import type { Components, ExtraProps } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { setTaskChecked, taskMarkerOffset } from "../lib/head-start";
+import { downloadDraft } from "../lib/draft-download";
 import { IconButton } from "./icons";
 
 export interface HeadStartProps {
@@ -94,10 +95,20 @@ export function HeadStart({ content, onChange, readOnly = false }: HeadStartProp
     }
   }
 
+  function saveDraft() {
+    try {
+      downloadDraft(content);
+      setCopyMessage("초안 파일을 내려받았어요.");
+    } catch {
+      setCopyMessage("초안 파일을 내려받지 못했어요. 복사 버튼으로 내용을 옮겨 주세요.");
+    }
+  }
+
   return <section className={readOnly ? "hs-root hs-readonly" : "hs-root"} aria-label="준비된 초안">
     <div className="hs-toolbar">
       {!readOnly && <IconButton icon={editing ? "preview" : "edit"} label={editing ? "미리보기" : "고치기"} aria-pressed={editing} onClick={() => { setEditing((current) => !current); setCopyMessage(""); }} />}
       <IconButton icon="copy" label="복사" onClick={copyDraft} />
+      <IconButton icon="download" label="초안 내려받기" onClick={saveDraft} />
     </div>
     {copyMessage && <p className="hs-message" role="status">{copyMessage}</p>}
     {editing && !readOnly ? <div className="hs-editor">

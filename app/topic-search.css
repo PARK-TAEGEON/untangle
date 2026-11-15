@@ -1,0 +1,6 @@
+.topic-search { display: grid; gap: var(--space-2); margin-bottom: var(--space-6); }
+.topic-search > label { font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.topic-search-controls { display: flex; align-items: center; gap: var(--space-2); }
+.topic-search-controls input { flex: 1; width: 100%; min-width: 0; }
+.topic-search-controls .button { flex-shrink: 0; }
+.topics-searching .theme-box-header .group-toggle:disabled { color: var(--color-ink); }

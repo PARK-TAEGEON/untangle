@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 
-export type LineIconName = "clock" | "close" | "external" | "edit" | "copy" | "preview" | "star" | "more" | "sun" | "moon" | "settings";
+export type LineIconName = "clock" | "close" | "external" | "edit" | "copy" | "download" | "preview" | "star" | "more" | "sun" | "moon" | "settings";
 
 export function LineIcon({ name }: { name: LineIconName }) {
   return <svg className="line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
@@ -10,6 +10,7 @@ export function LineIcon({ name }: { name: LineIconName }) {
     {name === "external" && <><path d="M14 4h6v6M20 4l-9 9" /><path d="M10 5H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-5" /></>}
     {name === "edit" && <><path d="m15 5 4 4M4 20l5-1L20 8a2.8 2.8 0 0 0-4-4L5 15l-1 5Z" /></>}
     {name === "copy" && <><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M15 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h3" /></>}
+    {name === "download" && <path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4" />}
     {name === "preview" && <><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>}
     {name === "star" && <path d="m12 3 2.8 5.8 6.4.9-4.6 4.5 1.1 6.3-5.7-3-5.7 3 1.1-6.3L2.8 9.7l6.4-.9L12 3Z" />}
     {name === "more" && <><path d="M5 12h.01M12 12h.01M19 12h.01" /></>}
