@@ -6,6 +6,7 @@ import "./topic-refinements.css";
 import "./history-backup.css";
 import "./page-polish.css";
 import "./welcome.css";
+import "./focus-card.css";
 import { WorkspaceProvider } from "../components/workspace-provider";
 import { AppTransitions } from "../components/app-transitions";
 import { THEME_INIT_SCRIPT } from "../lib/theme";

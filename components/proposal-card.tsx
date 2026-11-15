@@ -37,6 +37,7 @@ export interface ProposalCardProps {
   stale?: boolean;
   finishing?: boolean;
   leaving?: "snooze" | "dismiss";
+  cardKey?: string;
   onContentChange: (content: string) => void;
   onAccept: () => void;
   onComplete: (note: string) => void;
@@ -44,18 +45,19 @@ export interface ProposalCardProps {
   onDismiss: () => void;
   onAnswer: (id: string) => void;
   onContinue: () => void;
+  onFocus?: () => void;
 }
 
-export function SmallProposal({ nudge, topic, themeIndex = -1, accepted, stale, selected, onClick }: {
-  nudge: Nudge; topic?: WorkspaceTopic; themeIndex?: number; accepted?: boolean; stale?: boolean; selected?: boolean; onClick: () => void;
+export function SmallProposal({ nudge, topic, themeIndex = -1, accepted, stale, selected, cardKey, onClick }: {
+  nudge: Nudge; topic?: WorkspaceTopic; themeIndex?: number; accepted?: boolean; stale?: boolean; selected?: boolean; cardKey?: string; onClick: () => void;
 }) {
-  return <button type="button" className={`small-proposal small-proposal-${nudge.slot}${selected ? " is-selected" : ""}`} style={topicThreadStyle(themeIndex)} onClick={onClick} aria-pressed={selected}>
+  return <button type="button" data-card-key={cardKey} className={`small-proposal small-proposal-${nudge.slot}${selected ? " is-selected" : ""}`} style={topicThreadStyle(themeIndex)} onClick={onClick} aria-pressed={selected}>
     <span className="small-proposal-meta"><TopicName name={topic?.name ?? nudge.new_topic_name ?? "새로운 연결"} themeIndex={themeIndex} /><span>{nudge.est_minutes}분</span></span>
     <strong>{nudge.title}</strong>{stale && <span className="small-proposal-action">이어서 할까요, 접을까요?</span>}<span className="small-proposal-open">{accepted ? "진행 중 카드 펼쳐보기" : "펼쳐보기"}</span>
   </button>;
 }
 
-export function ProposalCard({ nudge, content, topic, themeIndex = -1, accepted, stale, finishing, leaving, onContentChange, onAccept, onComplete, onSnooze, onDismiss, onAnswer, onContinue }: ProposalCardProps) {
+export function ProposalCard({ nudge, content, topic, themeIndex = -1, accepted, stale, finishing, leaving, cardKey, onContentChange, onAccept, onComplete, onSnooze, onDismiss, onAnswer, onContinue, onFocus }: ProposalCardProps) {
   const id = useId();
   const [completing, setCompleting] = useState(false);
   const [note, setNote] = useState("");
@@ -74,7 +76,7 @@ export function ProposalCard({ nudge, content, topic, themeIndex = -1, accepted,
     }
   }
 
-  return <article className={`proposal-card proposal-${nudge.slot}${finishing ? " is-finishing" : ""}${leaving ? ` is-leaving is-leaving-${leaving}` : ""}`} style={topicThreadStyle(themeIndex)} aria-labelledby={`${id}-title`} inert={Boolean(finishing || leaving)}>
+  return <article data-card-key={cardKey} className={`proposal-card proposal-${nudge.slot}${finishing ? " is-finishing" : ""}${leaving ? ` is-leaving is-leaving-${leaving}` : ""}`} style={topicThreadStyle(themeIndex)} aria-labelledby={`${id}-title`} inert={Boolean(finishing || leaving)}>
     <ThreadDrawing variant="card" straight={finishing} />
     <div className="proposal-meta"><TopicName name={topic?.name ?? nudge.new_topic_name ?? "새로운 연결"} themeIndex={themeIndex} /><span className="proposal-time">{nudge.est_minutes}분</span></div>
     <header className="proposal-heading"><h2 id={`${id}-title`}>{nudge.title}</h2></header>
@@ -85,6 +87,7 @@ export function ProposalCard({ nudge, content, topic, themeIndex = -1, accepted,
     {stale && <div className="stale-card"><p>이어서 할까요, 접을까요?</p><div className="button-row"><button type="button" className="button button-secondary" onClick={onContinue}>이어서 할게요</button><button type="button" className="button button-quiet" onClick={onDismiss}>접을게요</button></div></div>}
     {!completing && <div className="proposal-actions">
       {accepted ? <button type="button" className="button button-start" onClick={() => setCompleting(true)}>다 했어요</button> : <button type="button" className="button button-start" onClick={onAccept}>시작</button>}
+      {accepted && onFocus && <button type="button" className="button button-secondary" onClick={onFocus}>집중해서 계속</button>}
       <IconButton icon="clock" label="나중에" onClick={onSnooze} />
       <IconButton icon="close" label="관심 없어요" onClick={onDismiss} />
       <HandoffMenu onChoose={handoff} />
