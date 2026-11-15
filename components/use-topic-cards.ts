@@ -10,6 +10,8 @@ import { todayInSeoul } from "../lib/dates";
 import { advanceSampleTopicCards } from "../lib/sample-mode";
 import { isWorkspaceCardRequestActive } from "./use-cards";
 import { useWorkspace } from "./workspace-provider";
+import { appendTodayRoster } from "../lib/today-roster";
+import type { WorkspaceData } from "../lib/workspace";
 
 interface ActiveRequest { promise: Promise<void>; error: string | null; settled: boolean }
 const activeRequests = new Map<string, ActiveRequest>();
@@ -96,10 +98,17 @@ export function useTopicCards(topicId: string): { loading: boolean; error: strin
       try {
         if (sourceIsSample) {
           request.settled = true;
-          if (!update((previous) => getTopicCardRequestId(previous, topicId) === token
-            ? advanceSampleTopicCards(previous, topicId, new Date().toISOString(), token) : previous)) {
+          let applied: WorkspaceData | null = null;
+          const saved = update((previous) => {
+            if (getTopicCardRequestId(previous, topicId) !== token) return previous;
+            const next = advanceSampleTopicCards(previous, topicId, new Date().toISOString(), token);
+            if (next !== previous) applied = next;
+            return next;
+          });
+          if (!saved) {
             request.error = "초안을 저장할 수 없어요. 브라우저 저장소를 확인해 주세요.";
           }
+          if (saved && applied) appendTodayRoster(applied, todayInSeoul());
           return;
         }
         const response = await fetch("/api/cards", {
@@ -111,9 +120,16 @@ export function useTopicCards(topicId: string): { loading: boolean; error: strin
           throw new Error(request.error);
         }
         request.settled = true;
-        if (!update((previous) => applyTopicGeneratedCards(previous, topicId, body.nudges!, new Date().toISOString(), token))) {
+        let applied: WorkspaceData | null = null;
+        const saved = update((previous) => {
+          const next = applyTopicGeneratedCards(previous, topicId, body.nudges!, new Date().toISOString(), token);
+          if (next !== previous) applied = next;
+          return next;
+        });
+        if (!saved) {
           request.error = "초안을 저장할 수 없어요. 브라우저 저장소를 확인해 주세요.";
         }
+        if (saved && applied) appendTodayRoster(applied, todayInSeoul());
       } catch {
         request.settled = true;
         request.error ??= failureMessage;

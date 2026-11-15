@@ -9,6 +9,7 @@ import { todayInSeoul } from "../lib/dates";
 import type { WorkspaceData } from "../lib/workspace";
 import { prepareWorkspaceRestore } from "../lib/backup";
 import { APP_DATA_RESET_KEY, AppDataClearError, clearKnownAppData, readAppDataEpoch } from "../lib/app-data";
+import { resetTodayRoster } from "../lib/today-roster";
 
 interface WorkspaceContextValue {
   workspace: WorkspaceData | null;
@@ -103,7 +104,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, [forgetWorkspace]);
 
   // Persist only explicit actions after hydration, never an initial empty render or a storage event.
-  const replace = useCallback((data: WorkspaceData): boolean => {
+  const persist = useCallback((data: WorkspaceData, resetRoster = false): boolean => {
     try {
       if (!writable()) return false;
       const nextMode = data.sample ? "sample" : "personal";
@@ -114,12 +115,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setWorkspace(data);
       setMode(nextMode);
       setError(null);
+      if (resetRoster) resetTodayRoster(nextMode);
       return true;
     } catch (cause) {
       setError(message(cause));
       return false;
     }
   }, [writable]);
+
+  /** Explicit replacements start a fresh UI cohort; ordinary edits use persist without resetting it. */
+  const replace = useCallback((data: WorkspaceData): boolean => persist(data, true), [persist]);
 
   /** Backup restoration writes one existing mode only; failure cannot change its mode flag or UI. */
   const restore = useCallback((data: WorkspaceData): boolean => {
@@ -130,6 +135,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       current.current = restored;
       setWorkspace(restored);
       setError(null);
+      resetTodayRoster(currentMode.current);
       return true;
     } catch (cause) {
       setError(message(cause));
@@ -143,6 +149,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     try {
       epoch.current = clearKnownAppData(window.localStorage);
       forgetWorkspace();
+      resetTodayRoster("personal");
+      resetTodayRoster("sample");
       setError(null);
       return true;
     } catch (cause) {
@@ -179,12 +187,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     try {
       if (!writable()) return false;
       const next = fn(current.current);
-      return replace(next);
+      return persist(next);
     } catch (cause) {
       setError(message(cause));
       return false;
     }
-  }, [replace, writable]);
+  }, [persist, writable]);
 
   return <WorkspaceContext.Provider value={{ workspace, ready, error, update, replace, restore, clearAppData, mode, startSample, exitSample }}>{children}</WorkspaceContext.Provider>;
 }

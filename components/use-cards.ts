@@ -6,6 +6,8 @@ import type { Nudge } from "../lib/card-types";
 import { todayInSeoul } from "../lib/dates";
 import { useWorkspace } from "./workspace-provider";
 import { advanceSampleCards } from "../lib/sample-mode";
+import { saveTodayRoster } from "../lib/today-roster";
+import type { WorkspaceData } from "../lib/workspace";
 
 // Route changes and StrictMode effect replay must not cancel a paid request already started.
 // Only promises live here; persisted request IDs determine whether their result is still current.
@@ -47,7 +49,14 @@ export function useCards(enabled = true) {
     setToday(date);
     if (!enabled || !source || source.topics.length === 0 || busy.current || (!manual && !shouldGenerateCards(source, date))) return;
     if (mode === "sample" || source.sample) {
-      if (source.sample) update((previous) => previous.sample ? advanceSampleCards(previous, new Date().toISOString(), date) : previous);
+      let applied: WorkspaceData | null = null;
+      const saved = source.sample && update((previous) => {
+        if (!previous.sample) return previous;
+        const next = advanceSampleCards(previous, new Date().toISOString(), date);
+        if (next !== previous) applied = next;
+        return next;
+      });
+      if (saved && applied) saveTodayRoster(applied, date);
       return;
     }
     const requestId = crypto.randomUUID();
@@ -67,7 +76,13 @@ export function useCards(enabled = true) {
           if (typeof body.error === "string") failure = body.error;
           throw new Error(failure);
         }
-        update((previous) => applyGeneratedCards(previous, body.nudges!, new Date().toISOString(), date, requestId));
+        let applied: WorkspaceData | null = null;
+        const saved = update((previous) => {
+          const next = applyGeneratedCards(previous, body.nudges!, new Date().toISOString(), date, requestId);
+          if (next !== previous) applied = next;
+          return next;
+        });
+        if (saved && applied) saveTodayRoster(applied, date);
       } catch {
         update((previous) => failCardGeneration(previous, failure, requestId));
       }
