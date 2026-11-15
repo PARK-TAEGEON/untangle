@@ -7,9 +7,11 @@ import "./history-backup.css";
 import "./page-polish.css";
 import "./welcome.css";
 import "./focus-card.css";
+import "./preferences.css";
 import { WorkspaceProvider } from "../components/workspace-provider";
 import { AppTransitions } from "../components/app-transitions";
 import { THEME_INIT_SCRIPT } from "../lib/theme";
+import { PREFERENCES_INIT_SCRIPT } from "../lib/preferences";
 
 const pretendard = localFont({
   src: "../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
@@ -37,5 +39,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="ko" className={`${pretendard.variable} ${instrumentSerif.variable}`} suppressHydrationWarning><head><script id="theme-init" dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} /></head><body><WorkspaceProvider><AppTransitions>{children}</AppTransitions></WorkspaceProvider></body></html>;
+  return <html lang="ko" className={`${pretendard.variable} ${instrumentSerif.variable}`} suppressHydrationWarning><head><script id="theme-init" dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} /><script id="preferences-init" dangerouslySetInnerHTML={{ __html: PREFERENCES_INIT_SCRIPT }} /></head><body><WorkspaceProvider><AppTransitions>{children}</AppTransitions></WorkspaceProvider></body></html>;
 }

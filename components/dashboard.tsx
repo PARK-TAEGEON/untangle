@@ -8,8 +8,10 @@ import { CardEmpty, CardSkeleton } from "./ui";
 import { useCards } from "./use-cards";
 import { useWorkspaceCards, WorkspaceSmallCard } from "./workspace-cards";
 import { useWorkspace } from "./workspace-provider";
+import { usePreferences } from "./use-preferences";
 
 export function Dashboard() {
+  const { cardLimit } = usePreferences();
   const { workspace, ready, update } = useWorkspace();
   const [leavingSample, setLeavingSample] = useState(false);
   const { today, loading, generate } = useCards(!leavingSample && Boolean(workspace?.topics.length));
@@ -20,7 +22,7 @@ export function Dashboard() {
   if (!ready || !workspace || workspace.topics.length === 0) return <main className="app-loading" role="status">저장한 프로젝트를 불러오고 있어요.</main>;
   const cards = visibleCards(workspace, today);
   const hero = finishing ?? cards.find((card) => card.key === selectedKey) ?? cards.find((card) => card.nudge.slot === "focus" && !isAcceptedUnfinished(card)) ?? cards[0];
-  const remaining = cards.filter((card) => card.key !== hero?.key);
+  const remaining = cards.filter((card) => card.key !== hero?.key).slice(0, cardLimit - 1);
   const error = getCardState(workspace).error;
 
   function promote(key: string) {
@@ -35,8 +37,8 @@ export function Dashboard() {
       <div className={`today-columns${remaining.length > 0 || (error && cards.length > 0) ? " has-aside" : ""}`}>
         <div className="today-primary">{loading ? <CardSkeleton /> : error ? <CardEmpty failed message={error} onGenerate={() => void generate()} /> : hero ? renderExpanded(hero) : <CardEmpty onGenerate={() => void generate()} />}</div>
         {(remaining.length > 0 || (error && cards.length > 0)) && <aside className="today-other-cards">
-          {remaining.length > 0 && <section className="today-card-list" aria-label="다른 한 걸음"><header className="section-heading"><h2>다른 한 걸음</h2><span className="count-chip">{remaining.length}</span></header>{remaining.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
-          {error && cards.length > 0 && <section className="today-card-list" aria-label="저장된 제안"><h2>저장된 제안</h2>{cards.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
+          {!error && remaining.length > 0 && <section className="today-card-list" aria-label="다른 한 걸음"><header className="section-heading"><h2>다른 한 걸음</h2><span className="count-chip">{remaining.length}</span></header>{remaining.map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
+          {error && cards.length > 0 && <section className="today-card-list" aria-label="저장된 제안"><h2>저장된 제안</h2>{cards.slice(0, cardLimit).map((card) => <WorkspaceSmallCard key={card.key} card={card} onClick={() => promote(card.key)} />)}</section>}
         </aside>}
       </div>
     </main>

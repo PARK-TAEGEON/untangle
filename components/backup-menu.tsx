@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { parseWorkspaceBackup, serializeWorkspaceBackup } from "../lib/backup";
 import { todayInSeoul } from "../lib/dates";
 import type { WorkspaceData } from "../lib/workspace";
 import { LineIcon } from "./icons";
 import { useWorkspace } from "./workspace-provider";
 
-export function BackupMenu({ onRestored }: { onRestored?: () => void }) {
+export function BackupMenu({ onRestored, variant = "menu" }: { onRestored?: () => void; variant?: "menu" | "inline" }) {
   const { workspace, mode, restore } = useWorkspace();
   const input = useRef<HTMLInputElement>(null);
   const menu = useRef<HTMLDetailsElement>(null);
@@ -17,6 +17,8 @@ export function BackupMenu({ onRestored }: { onRestored?: () => void }) {
   const [message, setMessage] = useState<string | null>(null);
   const [reading, setReading] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
+  const titleId = useId();
+  const descriptionId = useId();
 
   useEffect(() => {
     if (pending && dialog.current && !dialog.current.open) dialog.current.showModal();
@@ -42,14 +44,13 @@ export function BackupMenu({ onRestored }: { onRestored?: () => void }) {
     }
   };
 
-  return <div className="backup-control">
-    <details ref={menu} className="backup-menu"><summary className="icon-button" aria-label="자료 메뉴" title="자료 메뉴" data-tooltip="자료 메뉴"><LineIcon name="more" /></summary>
-      <div className="backup-menu-items"><button type="button" disabled={!workspace} onClick={exportFile}>내보내기</button><button type="button" disabled={reading} onClick={() => {
+  const controls = <><button type="button" className={variant === "inline" ? "button button-secondary" : undefined} disabled={!workspace} onClick={exportFile}>내보내기</button><button type="button" className={variant === "inline" ? "button button-secondary" : undefined} disabled={reading} onClick={() => {
         if (menu.current) menu.current.open = false;
         setMessage(null);
         input.current?.click();
-      }}>가져오기</button></div>
-    </details>
+      }}>가져오기</button></>;
+  return <div className={`backup-control${variant === "inline" ? " backup-inline" : ""}`}>
+    {variant === "inline" ? <div className="button-row" aria-label="백업 파일">{controls}</div> : <details ref={menu} className="backup-menu"><summary className="icon-button" aria-label="자료 메뉴" title="자료 메뉴" data-tooltip="자료 메뉴"><LineIcon name="more" /></summary><div className="backup-menu-items">{controls}</div></details>}
     <input ref={input} className="backup-file-input" type="file" accept=".json,application/json" aria-label="가져올 백업 파일" onChange={async (event) => {
       const file = event.currentTarget.files?.[0];
       event.currentTarget.value = "";
@@ -66,9 +67,9 @@ export function BackupMenu({ onRestored }: { onRestored?: () => void }) {
       }
     }} />
     {message && <div className="backup-notice" role="status"><span>{message}</span><button type="button" className="button-quiet" onClick={() => setMessage(null)}>닫기</button></div>}
-    {pending && <dialog ref={dialog} className="backup-dialog" aria-labelledby="backup-dialog-title" aria-describedby="backup-dialog-description" onCancel={(event) => { event.preventDefault(); cancel(); }}>
-      <h2 id="backup-dialog-title">백업으로 바꿀까요?</h2><p className="muted">{pending.name}</p>
-      <p id="backup-dialog-description">토픽 {pending.data.topics.length}개와 지난 토픽 {pending.data.completed_steps?.length ?? 0}개를 가져와요. 현재 {mode === "sample" ? "샘플" : "내"} 기록을 이 파일의 내용으로 교체합니다.</p>
+    {pending && <dialog ref={dialog} className="backup-dialog" aria-labelledby={titleId} aria-describedby={descriptionId} onCancel={(event) => { event.preventDefault(); cancel(); }}>
+      <h2 id={titleId}>백업으로 바꿀까요?</h2><p className="muted">{pending.name}</p>
+      <p id={descriptionId}>토픽 {pending.data.topics.length}개와 지난 토픽 {pending.data.completed_steps?.length ?? 0}개를 가져와요. 현재 {mode === "sample" ? "샘플" : "내"} 기록을 이 파일의 내용으로 교체합니다.</p>
       <p className="muted">다른 모드의 기록은 그대로 보관해요.</p>
       {importError && <p role="alert">{importError}</p>}
       <div className="button-row"><button type="button" className="button button-secondary" autoFocus onClick={cancel}>취소</button><button type="button" className="button button-primary" onClick={() => {

@@ -40,15 +40,16 @@
   --weight-heavy: 700;
 
   /* 글자 크기 */
-  --text-xs: 13px;   /* 라벨, 꼬리표, 남은 날짜 */
-  --text-sm: 14px;   /* 보조 버튼, 부가 설명 */
-  --text-md: 16px;   /* 본문 기본 */
-  --text-lg: 17px;   /* 강조 본문, 주요 버튼 */
-  --text-xl: 21px;   /* 작은 카드 제목 */
-  --text-2xl: 40px;  /* 첫 카드 제목, 화면 제목 */
-  --text-draft: 15px;
-  --text-display: 40px; /* 홈의 영어 강조 문구 */
-  --text-welcome: 72px; /* 로비의 이름 */
+  --text-scale: 1;
+  --text-xs: calc(13px * var(--text-scale));   /* 라벨, 꼬리표, 남은 날짜 */
+  --text-sm: calc(14px * var(--text-scale));   /* 보조 버튼, 부가 설명 */
+  --text-md: calc(16px * var(--text-scale));   /* 본문 기본 */
+  --text-lg: calc(17px * var(--text-scale));   /* 강조 본문, 주요 버튼 */
+  --text-xl: calc(21px * var(--text-scale));   /* 작은 카드 제목 */
+  --text-2xl: calc(40px * var(--text-scale));  /* 첫 카드 제목, 화면 제목 */
+  --text-draft: calc(15px * var(--text-scale));
+  --text-display: calc(40px * var(--text-scale)); /* 홈의 영어 강조 문구 */
+  --text-welcome: calc(72px * var(--text-scale)); /* 로비의 이름 */
   --leading-body: 1.55;
   --leading-title: 1.2;
   --tracking-title: -1px;    /* --text-2xl 에 */
@@ -96,6 +97,13 @@
   --motion-thread: 200ms;
   --motion-welcome: 1200ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:root[data-text-size="large"] { --text-scale: 1.12; }
+:root[data-reduced-motion="true"] {
+  --motion-fast: 0ms;
+  --motion-thread: 0ms;
+  --motion-welcome: 0ms;
 }
 
 /* 저장한 선택은 기기 설정보다 우선한다. 선택이 없으면 CSS부터 기기 설정을 따른다. */

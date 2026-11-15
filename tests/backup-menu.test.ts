@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { act, createElement } from "react";
+import type { ReactElement } from "react";
 import { createRoot } from "react-dom/client";
 import type { Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -36,7 +37,7 @@ let root: Root;
 let container: HTMLDivElement;
 let store: ReturnType<typeof useWorkspace>;
 function Capture() { store = useWorkspace(); return null; }
-async function render(child = createElement(BackupMenu)) {
+async function render(child: ReactElement = createElement(BackupMenu)) {
   await act(async () => { root.render(createElement(WorkspaceProvider, null, createElement(Capture), child)); });
 }
 async function click(text: string) {
@@ -67,6 +68,21 @@ afterEach(async () => {
 });
 
 describe("backup confirmation and mode isolation", () => {
+  it("shares import confirmation behavior between inline controls and the header menu with unique labels", async () => {
+    await render(createElement("div", null, createElement(BackupMenu), createElement(BackupMenu, { variant: "inline" })));
+    expect(container.querySelectorAll("details.backup-menu")).toHaveLength(1);
+    expect(container.querySelectorAll(".backup-inline .button-row button")).toHaveLength(2);
+    const text = serializeWorkspaceBackup(fixture(), NOW);
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input[type='file']")];
+    for (const input of inputs) {
+      Object.defineProperty(input, "files", { configurable: true, value: [new File([text], "backup.json", { type: "application/json" })] });
+      await act(async () => { input.dispatchEvent(new Event("change", { bubbles: true })); await Promise.resolve(); });
+    }
+    const dialogs = [...container.querySelectorAll("dialog")];
+    expect(dialogs).toHaveLength(2);
+    expect(new Set(dialogs.map((dialog) => dialog.getAttribute("aria-labelledby"))).size).toBe(2);
+    for (const dialog of dialogs) expect(document.getElementById(dialog.getAttribute("aria-labelledby")!)?.textContent).toBe("백업으로 바꿀까요?");
+  });
   it("restores into an empty browser and then opens the restored workspace", async () => {
     window.localStorage.clear();
     const onRestored = vi.fn();

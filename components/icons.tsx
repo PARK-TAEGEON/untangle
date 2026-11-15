@@ -1,9 +1,10 @@
 import type { ButtonHTMLAttributes } from "react";
 
-export type LineIconName = "clock" | "close" | "external" | "edit" | "copy" | "preview" | "star" | "more" | "sun" | "moon";
+export type LineIconName = "clock" | "close" | "external" | "edit" | "copy" | "preview" | "star" | "more" | "sun" | "moon" | "settings";
 
 export function LineIcon({ name }: { name: LineIconName }) {
   return <svg className="line-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    {name === "settings" && <><path d="m9 3-.5 3-2 .9L4 6l-2 3 2.3 2v2L2 15l2 3 2.5-.9 2 .9.5 3h4l.5-3 2-.9 2.5.9 2-3-2.3-2v-2L20 9l-2-3-2.5.9-2-.9-.5-3Z" /><circle cx="11" cy="12" r="3" /></>}
     {name === "clock" && <><circle cx="12" cy="12" r="8" /><path d="M12 7v5l3 2" /></>}
     {name === "close" && <path d="m6 6 12 12M18 6 6 18" />}
     {name === "external" && <><path d="M14 4h6v6M20 4l-9 9" /><path d="M10 5H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-5" /></>}

@@ -8,6 +8,7 @@ import type { SamplePersonaId } from "../lib/sample-mode";
 import { todayInSeoul } from "../lib/dates";
 import type { WorkspaceData } from "../lib/workspace";
 import { prepareWorkspaceRestore } from "../lib/backup";
+import { APP_DATA_RESET_KEY, AppDataClearError, clearKnownAppData, readAppDataEpoch } from "../lib/app-data";
 
 interface WorkspaceContextValue {
   workspace: WorkspaceData | null;
@@ -16,6 +17,7 @@ interface WorkspaceContextValue {
   update: (fn: (previous: WorkspaceData) => WorkspaceData) => boolean;
   replace: (data: WorkspaceData) => boolean;
   restore: (data: WorkspaceData) => boolean;
+  clearAppData: () => boolean;
   mode: "personal" | "sample";
   startSample: (persona: SamplePersonaId) => boolean;
   exitSample: () => boolean;
@@ -35,10 +37,38 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const current = useRef<WorkspaceData | null>(null);
   const loaded = useRef(false);
   const currentMode = useRef<"personal" | "sample">("personal");
+  const epoch = useRef<string | null>(null);
+  const clearing = useRef(false);
+
+  const forgetWorkspace = useCallback(() => {
+    current.current = null;
+    currentMode.current = "personal";
+    setWorkspace(null);
+    setMode("personal");
+  }, []);
+
+  const writable = useCallback(() => {
+    if (!loaded.current || clearing.current) return false;
+    const actual = readAppDataEpoch(window.localStorage);
+    if (!actual.ready || actual.raw !== epoch.current) {
+      epoch.current = actual.raw;
+      forgetWorkspace();
+      setError(actual.ready ? "다른 탭에서 자료를 지웠어요. 현재 기록을 다시 확인해 주세요." : "자료 정리를 마치지 못했어요. 설정에서 모두 지우기를 다시 시도해 주세요.");
+      return false;
+    }
+    return true;
+  }, [forgetWorkspace]);
 
   useEffect(() => {
     const read = () => {
       try {
+        const actualEpoch = readAppDataEpoch(window.localStorage);
+        epoch.current = actualEpoch.raw;
+        if (!actualEpoch.ready) {
+          forgetWorkspace();
+          setError("자료 정리를 마치지 못했어요. 설정에서 모두 지우기를 다시 시도해 주세요.");
+          return;
+        }
         const nextMode = window.localStorage.getItem(WORKSPACE_MODE_STORAGE_KEY) === "sample" ? "sample" : "personal";
         const data = loadWorkspace(window.localStorage, nextMode === "sample" ? SAMPLE_WORKSPACE_STORAGE_KEY : WORKSPACE_STORAGE_KEY);
         if (nextMode === "sample" && !data?.sample) throw new Error("샘플 자료를 읽지 못했어요. 샘플을 다시 골라 주세요.");
@@ -56,7 +86,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     };
     read();
     const onStorage = (event: StorageEvent) => {
-      if (![WORKSPACE_STORAGE_KEY, SAMPLE_WORKSPACE_STORAGE_KEY, WORKSPACE_MODE_STORAGE_KEY, null].includes(event.key)) return;
+      if (![WORKSPACE_STORAGE_KEY, SAMPLE_WORKSPACE_STORAGE_KEY, WORKSPACE_MODE_STORAGE_KEY, APP_DATA_RESET_KEY, null].includes(event.key)) return;
       try {
         if (event.storageArea !== null && event.storageArea !== window.localStorage) return;
       } catch (cause) {
@@ -70,12 +100,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       loaded.current = false;
       window.removeEventListener("storage", onStorage);
     };
-  }, []);
+  }, [forgetWorkspace]);
 
   // Persist only explicit actions after hydration, never an initial empty render or a storage event.
   const replace = useCallback((data: WorkspaceData): boolean => {
-    if (!loaded.current) return false;
     try {
+      if (!writable()) return false;
       const nextMode = data.sample ? "sample" : "personal";
       saveWorkspace(window.localStorage, data, data.sample ? SAMPLE_WORKSPACE_STORAGE_KEY : WORKSPACE_STORAGE_KEY);
       window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, nextMode);
@@ -89,12 +119,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setError(message(cause));
       return false;
     }
-  }, []);
+  }, [writable]);
 
   /** Backup restoration writes one existing mode only; failure cannot change its mode flag or UI. */
   const restore = useCallback((data: WorkspaceData): boolean => {
-    if (!loaded.current) return false;
     try {
+      if (!writable()) return false;
       const restored = prepareWorkspaceRestore(data, currentMode.current, todayInSeoul());
       saveWorkspace(window.localStorage, restored, currentMode.current === "sample" ? SAMPLE_WORKSPACE_STORAGE_KEY : WORKSPACE_STORAGE_KEY);
       current.current = restored;
@@ -105,7 +135,22 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setError(message(cause));
       return false;
     }
-  }, []);
+  }, [writable]);
+
+  const clearAppData = useCallback((): boolean => {
+    if (!loaded.current || clearing.current) return false;
+    clearing.current = true;
+    try {
+      epoch.current = clearKnownAppData(window.localStorage);
+      forgetWorkspace();
+      setError(null);
+      return true;
+    } catch (cause) {
+      if (cause instanceof AppDataClearError && cause.partial) forgetWorkspace();
+      setError(message(cause));
+      return false;
+    } finally { clearing.current = false; }
+  }, [forgetWorkspace]);
 
   const startSample = useCallback((persona: SamplePersonaId): boolean => {
     if (!loaded.current) return false;
@@ -113,8 +158,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, [replace]);
 
   const exitSample = useCallback((): boolean => {
-    if (!loaded.current) return false;
     try {
+      if (!writable()) return false;
       const data = loadWorkspace(window.localStorage);
       window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, "personal");
       current.current = data;
@@ -127,20 +172,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setError(message(cause));
       return false;
     }
-  }, []);
+  }, [writable]);
 
   const update = useCallback((fn: (previous: WorkspaceData) => WorkspaceData): boolean => {
     if (!loaded.current || current.current === null) return false;
     try {
+      if (!writable()) return false;
       const next = fn(current.current);
       return replace(next);
     } catch (cause) {
       setError(message(cause));
       return false;
     }
-  }, [replace]);
+  }, [replace, writable]);
 
-  return <WorkspaceContext.Provider value={{ workspace, ready, error, update, replace, restore, mode, startSample, exitSample }}>{children}</WorkspaceContext.Provider>;
+  return <WorkspaceContext.Provider value={{ workspace, ready, error, update, replace, restore, clearAppData, mode, startSample, exitSample }}>{children}</WorkspaceContext.Provider>;
 }
 
 export function useWorkspace(): WorkspaceContextValue {

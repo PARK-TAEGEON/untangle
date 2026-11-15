@@ -6,7 +6,7 @@ import { HeadStart } from "../../components/head-start";
 import { ProposalCard, SmallProposal } from "../../components/proposal-card";
 import { Brand, CardEmpty, CardSkeleton, ThemeTabs, ThreadDrawing, TopicName } from "../../components/ui";
 import { IconButton } from "../../components/icons";
-import { ThemeToggle } from "../../components/theme-toggle";
+import { SettingsLink } from "../../components/settings-link";
 import type { LineIconName } from "../../components/icons";
 import type { Nudge } from "../../lib/card-types";
 import type { WorkspaceTopic } from "../../lib/workspace";
@@ -92,7 +92,7 @@ export default function KitPage() {
   const [stars, setStars] = useState<Record<string, boolean>>({ "kit-topic-1": true });
 
   return <main className="kit-shell">
-    <header className="kit-header"><Brand /><nav className="app-nav" aria-label="주 메뉴"><Link href="/">오늘</Link><Link href="/topics">현재 토픽</Link></nav><ThemeToggle /></header>
+    <header className="kit-header"><Brand /><nav className="app-nav" aria-label="주 메뉴"><Link href="/">오늘</Link><Link href="/topics">현재 토픽</Link></nav><SettingsLink /></header>
     <section className="kit-section">
       <p className="eyebrow">실타래 · 디자인 v0.2</p><h1>한 걸음을 만드는 부품들</h1>
       <p>직접 지어낸 가상 예시입니다. 여기서 고친 내용은 이 페이지 안에서만 바뀌어요.</p>
