@@ -4,13 +4,12 @@ import { useEffect, useId, useRef, useState } from "react";
 import { parseWorkspaceBackup, serializeWorkspaceBackup } from "../lib/backup";
 import { todayInSeoul } from "../lib/dates";
 import type { WorkspaceData } from "../lib/workspace";
-import { LineIcon } from "./icons";
+import { FloatingMenu } from "./floating-menu";
 import { useWorkspace } from "./workspace-provider";
 
 export function BackupMenu({ onRestored, variant = "menu" }: { onRestored?: () => void; variant?: "menu" | "inline" }) {
   const { workspace, mode, restore } = useWorkspace();
   const input = useRef<HTMLInputElement>(null);
-  const menu = useRef<HTMLDetailsElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const readSequence = useRef(0);
   const [pending, setPending] = useState<{ data: WorkspaceData; name: string } | null>(null);
@@ -27,7 +26,6 @@ export function BackupMenu({ onRestored, variant = "menu" }: { onRestored?: () =
   const cancel = () => { dialog.current?.close(); setPending(null); setImportError(null); };
   const exportFile = () => {
     if (!workspace) return;
-    if (menu.current) menu.current.open = false;
     try {
       const text = serializeWorkspaceBackup(workspace, new Date().toISOString());
       const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
@@ -45,12 +43,11 @@ export function BackupMenu({ onRestored, variant = "menu" }: { onRestored?: () =
   };
 
   const controls = <><button type="button" className={variant === "inline" ? "button button-secondary" : undefined} disabled={!workspace} onClick={exportFile}>내보내기</button><button type="button" className={variant === "inline" ? "button button-secondary" : undefined} disabled={reading} onClick={() => {
-        if (menu.current) menu.current.open = false;
         setMessage(null);
         input.current?.click();
       }}>가져오기</button></>;
   return <div className={`backup-control${variant === "inline" ? " backup-inline" : ""}`}>
-    {variant === "inline" ? <div className="button-row" aria-label="백업 파일">{controls}</div> : <details ref={menu} className="backup-menu"><summary className="icon-button" aria-label="자료 메뉴" title="자료 메뉴" data-tooltip="자료 메뉴"><LineIcon name="more" /></summary><div className="backup-menu-items">{controls}</div></details>}
+    {variant === "inline" ? <div className="button-row" aria-label="백업 파일">{controls}</div> : <FloatingMenu icon="more" label="자료 메뉴" className="backup-menu" panelClassName="backup-menu-items">{controls}</FloatingMenu>}
     <input ref={input} className="backup-file-input" type="file" accept=".json,application/json" aria-label="가져올 백업 파일" onChange={async (event) => {
       const file = event.currentTarget.files?.[0];
       event.currentTarget.value = "";

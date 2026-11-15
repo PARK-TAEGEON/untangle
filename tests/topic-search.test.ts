@@ -143,11 +143,12 @@ describe("local topic search", () => {
     await render(); await search("alpha");
     await click(tile("alpha")!.querySelector("button[aria-label='Alpha 연구 별 표시']"));
     expect(loadWorkspace(window.localStorage)?.topics.find((topic) => topic.id === "alpha")?.starred).toBe(true);
-    await click(tile("alpha")!.querySelector("summary"));
-    const later = [...tile("alpha")!.querySelectorAll("button")].find((item) => item.textContent === "나중에")!;
+    await click(tile("alpha")!.querySelector("button[aria-label='Alpha 연구 메뉴']"));
+    const later = [...document.querySelectorAll(".topic-menu-panel button")].find((item) => item.textContent === "나중에")!;
     await click(later);
     expect(loadWorkspace(window.localStorage)?.topics.find((topic) => topic.id === "alpha")?.state).toBe("later");
-    expect(container.querySelectorAll(".topics-later .topic-tile")).toHaveLength(2);
+    expect(container.querySelectorAll(".topics-later .topic-tile")).toHaveLength(1);
+    expect(container.querySelectorAll(".topics-starred .topic-tile")).toHaveLength(1);
     await click(button("되돌리기"));
     const saved = loadWorkspace(window.localStorage)!;
     expect(saved.topics.find((topic) => topic.id === "alpha")?.state).toBe("active");
@@ -159,8 +160,8 @@ describe("local topic search", () => {
 
   it("keeps delete/undo and the current query when a matching result disappears", async () => {
     await render(); await search("mapping");
-    await click(tile("beta")!.querySelector("summary"));
-    await click([...tile("beta")!.querySelectorAll("button")].find((item) => item.textContent === "삭제") ?? null);
+    await click(tile("beta")!.querySelector("button[aria-label='Beta project 메뉴']"));
+    await click([...document.querySelectorAll(".topic-menu-panel button")].find((item) => item.textContent === "삭제") ?? null);
     expect(names()).toEqual([]);
     expect(container.textContent).toContain("찾는 토픽이 없어요.");
     await click(button("되돌리기"));

@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { restoreRemovedTopic, snapshotTopicRemoval } from "../lib/card-state";
-import { moveTopicTheme, removeTopic, setTopicState, toggleStar } from "../lib/workspace";
+import { moveTopicTheme, removeTopic, setTopicState } from "../lib/workspace";
 import type { WorkspaceData, WorkspaceTopic } from "../lib/workspace";
 import { useWorkspace } from "./workspace-provider";
-import { LineIcon } from "./icons";
+import { FloatingMenu } from "./floating-menu";
+import { useTopicStar } from "./topic-star";
 
 export type TopicAction = (topic: WorkspaceTopic, action: "delete" | "later") => void;
 interface UndoNotice { id: number; message: string; restore: (workspace: WorkspaceData) => WorkspaceData }
@@ -36,16 +37,13 @@ export function useTopicActions() {
 
 export function TopicMenu({ topic, workspace, onAction }: { topic: WorkspaceTopic; workspace: WorkspaceData; onAction: TopicAction }) {
   const { update } = useWorkspace();
-  const starLimit = !topic.starred && workspace.topics.filter((item) => item.starred).length >= 3;
-  return <details className="topic-menu">
-    <summary className="icon-button" aria-label={`${topic.name} 메뉴`} title="토픽 메뉴" data-tooltip="토픽 메뉴"><LineIcon name="more" /></summary>
-    <div className="topic-menu-panel">
-      <button type="button" aria-pressed={topic.starred} disabled={starLimit} title={starLimit ? "별은 최대 3개까지 표시할 수 있어요." : undefined} onClick={() => update((previous) => toggleStar(previous, topic.id))}>{topic.starred ? "별 해제" : "별 표시"}{starLimit ? " (최대 3개)" : ""}</button>
+  const { toggle, notice } = useTopicStar(topic.id);
+  return <><FloatingMenu icon="more" label={`${topic.name} 메뉴`} title="토픽 메뉴" className="topic-menu" panelClassName="topic-menu-panel">
+      <button type="button" aria-pressed={topic.starred} onClick={toggle}>{topic.starred ? "별 해제" : "별 표시"}</button>
       <button type="button" onClick={() => topic.state === "active" ? onAction(topic, "later") : update((previous) => setTopicState(previous, topic.id, "active"))}>{topic.state === "active" ? "나중에" : "다시 활성"}</button>
       <label className="menu-theme-label">테마 옮기기<select aria-label={`${topic.name} 테마 옮기기`} value={topic.theme ?? ""} onChange={(event) => update((previous) => moveTopicTheme(previous, topic.id, event.target.value || null))}><option value="">따로 뺀 토픽</option>{workspace.themes.map((theme) => <option key={theme.name} value={theme.name}>{theme.name}</option>)}</select></label>
       <button type="button" disabled={topic.theme === null} onClick={() => update((previous) => moveTopicTheme(previous, topic.id, null))}>따로 빼기</button>
       <button type="button" onClick={() => onAction(topic, "delete")}>삭제</button>
       <p className="menu-help">삭제한 토픽은 다시 가져와도 숨겨져요.</p>
-    </div>
-  </details>;
+  </FloatingMenu>{notice}</>;
 }

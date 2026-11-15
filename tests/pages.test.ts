@@ -179,7 +179,10 @@ describe("separate today and topic pages", () => {
     expect(container.querySelector(".topic-tile-link")?.getAttribute("href")).toBe("/topics/t1");
     expect(container.textContent).toContain("첫 번째 가상 프로젝트 설명");
     expect([...container.querySelectorAll(".theme-box-header")].some((heading) => heading.textContent?.includes("활성이 없는 테마"))).toBe(false);
-    expect(container.querySelector("option[value='활성이 없는 테마']")).not.toBeNull();
+    const menu = container.querySelector("button[aria-label='첫 프로젝트 메뉴']");
+    await click(menu);
+    expect(document.querySelector(".topic-menu-panel option[value='활성이 없는 테마']")).not.toBeNull();
+    await click(menu);
     expect(container.querySelector(".topics-later button")?.getAttribute("aria-expanded")).toBe("false");
     await click(container.querySelector("button[aria-label='첫 프로젝트 별 표시']"));
     expect(loadWorkspace(window.localStorage)?.topics[0].starred).toBe(true);
@@ -265,7 +268,8 @@ describe("separate today and topic pages", () => {
     const data = workspace(); data.topics = [data.topics[0]]; data.cards!.items = [data.cards!.items[0]];
     saveWorkspace(window.localStorage, data);
     await render(createElement(TopicBoard, { topicId: "t1" }));
-    await click(button("삭제"));
+    await click(container.querySelector("button[aria-label='첫 프로젝트 메뉴']"));
+    await click([...document.querySelectorAll(".topic-menu-panel button")].find((element) => element.textContent?.trim() === "삭제") ?? null);
     expect(container.querySelector(".undo-toast")).not.toBeNull();
     expect(navigation.replace).not.toHaveBeenCalled();
     expect(loadWorkspace(window.localStorage)?.topics).toEqual([]);

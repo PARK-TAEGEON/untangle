@@ -1,0 +1,6 @@
+.topics-starred { margin-bottom: var(--space-6); }
+.topic-star-button[aria-pressed="true"] { color: var(--thread-current); background: none; }
+.topic-star-button[aria-pressed="true"] .line-icon { fill: var(--thread-current); stroke: var(--thread-current); }
+.topic-star-button[aria-pressed="false"] .line-icon { fill: none; }
+.topic-star-button[aria-pressed="true"]:hover { background: var(--color-surface-sunken); }
+.topic-star-notice { position: fixed; z-index: 100; left: 50%; bottom: var(--space-5); transform: translateX(-50%); display: flex; align-items: center; min-height: var(--touch-min); max-width: calc(100% - var(--space-6)); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); color: var(--color-on-ink); background: var(--color-ink); font-size: var(--text-sm); pointer-events: none; }

@@ -85,27 +85,29 @@ describe("compact card disclosures and handoff", () => {
     ["Claude", "https://claude.ai/new"], ["ChatGPT", "https://chatgpt.com/"],
   ])("preserves the edited draft and popup isolation when continuing in %s", async (service, url) => {
     await render();
-    const menu = container.querySelector<HTMLDetailsElement>(".handoff-menu")!;
-    menu.open = true;
-    const choice = Array.from(menu.querySelectorAll("button")).find((button) => button.textContent?.startsWith(service))!;
+    const trigger = container.querySelector<HTMLButtonElement>("button[aria-label='다른 AI에서 이어가기']")!;
+    await act(async () => trigger.click());
+    const choice = Array.from(document.querySelectorAll<HTMLButtonElement>(".handoff-menu-panel button")).find((button) => button.textContent?.startsWith(service))!;
     await act(async () => choice.click());
     expect(copy).toHaveBeenCalledTimes(1);
     expect(copy.mock.calls[0][0]).toContain(`[준비된 초안]\n${edited}\n\n이 초안에서 이어서 도와줘.`);
     expect(window.open).toHaveBeenCalledWith("about:blank", "_blank");
     expect(popup.opener).toBeNull();
     expect(popup.location.href).toBe(url);
-    expect(menu.open).toBe(false);
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(document.querySelector(".handoff-menu-panel")).toBeNull();
   });
 
   it("closes the handoff menu with Escape and returns focus to its trigger", async () => {
     await render();
-    const menu = container.querySelector<HTMLDetailsElement>(".handoff-menu")!;
-    menu.open = true;
-    const choice = menu.querySelector("button")!;
+    const trigger = container.querySelector<HTMLButtonElement>("button[aria-label='다른 AI에서 이어가기']")!;
+    await act(async () => trigger.click());
+    const choice = document.querySelector<HTMLButtonElement>(".handoff-menu-panel button")!;
     choice.focus();
     await act(async () => choice.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
-    expect(menu.open).toBe(false);
-    expect(document.activeElement).toBe(menu.querySelector("summary"));
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(document.querySelector(".handoff-menu-panel")).toBeNull();
+    expect(document.activeElement).toBe(trigger);
     expect(copy).not.toHaveBeenCalled();
   });
 

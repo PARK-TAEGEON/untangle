@@ -41,7 +41,7 @@ async function render(child: ReactElement = createElement(BackupMenu)) {
   await act(async () => { root.render(createElement(WorkspaceProvider, null, createElement(Capture), child)); });
 }
 async function click(text: string) {
-  const button = [...container.querySelectorAll("button")].find((element) => element.textContent?.trim() === text);
+  const button = [...document.querySelectorAll("button")].find((element) => element.textContent?.trim() === text || element.getAttribute("aria-label") === text);
   expect(button).toBeTruthy();
   await act(async () => { button!.click(); });
 }
@@ -70,7 +70,8 @@ afterEach(async () => {
 describe("backup confirmation and mode isolation", () => {
   it("shares import confirmation behavior between inline controls and the header menu with unique labels", async () => {
     await render(createElement("div", null, createElement(BackupMenu), createElement(BackupMenu, { variant: "inline" })));
-    expect(container.querySelectorAll("details.backup-menu")).toHaveLength(1);
+    expect(container.querySelectorAll(".backup-menu")).toHaveLength(1);
+    expect(container.querySelector(".backup-menu button[aria-expanded]")?.getAttribute("aria-expanded")).toBe("false");
     expect(container.querySelectorAll(".backup-inline .button-row button")).toHaveLength(2);
     const text = serializeWorkspaceBackup(fixture(), NOW);
     const inputs = [...container.querySelectorAll<HTMLInputElement>("input[type='file']")];
@@ -101,6 +102,7 @@ describe("backup confirmation and mode isolation", () => {
     let filename = "";
     const download = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) { filename = this.download; });
     await render();
+    await click("자료 메뉴");
     await click("내보내기");
     expect(download).toHaveBeenCalledOnce();
     expect(filename).toBe(`untangle-${TODAY}.json`);

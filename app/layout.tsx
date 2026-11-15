@@ -12,6 +12,8 @@ import "./today-threads.css";
 import "./topic-search.css";
 import "./today-guide.css";
 import "./not-found.css";
+import "./floating-menu.css";
+import "./topic-stars.css";
 import { WorkspaceProvider } from "../components/workspace-provider";
 import { AppTransitions } from "../components/app-transitions";
 import { THEME_INIT_SCRIPT } from "../lib/theme";

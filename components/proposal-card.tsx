@@ -1,31 +1,19 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import type { Nudge } from "../lib/card-types";
 import { buildHandoff } from "../lib/handoff";
 import type { WorkspaceTopic } from "../lib/workspace";
 import { HeadStart } from "./head-start";
 import { ThreadDrawing, TopicName, topicThreadStyle } from "./ui";
-import { IconButton, LineIcon } from "./icons";
+import { IconButton } from "./icons";
+import { FloatingMenu } from "./floating-menu";
 
 function HandoffMenu({ onChoose }: { onChoose: (service: "claude" | "chatgpt") => Promise<void> }) {
-  const menu = useRef<HTMLDetailsElement>(null);
-  function choose(service: "claude" | "chatgpt") {
-    if (menu.current) menu.current.open = false;
-    void onChoose(service);
-  }
-  return <details className="handoff-menu" ref={menu} onKeyDown={(event) => {
-    if (event.key === "Escape" && menu.current?.open) {
-      menu.current.open = false;
-      menu.current.querySelector("summary")?.focus();
-    }
-  }}>
-    <summary className="icon-button" aria-label="다른 AI에서 이어가기" title="다른 AI에서 이어가기" data-tooltip="다른 AI에서 이어가기"><LineIcon name="external" /></summary>
-    <div className="handoff-menu-panel">
-      <button type="button" className="button button-quiet" onClick={() => choose("claude")}>Claude에서 이어가기 ↗</button>
-      <button type="button" className="button button-quiet" onClick={() => choose("chatgpt")}>ChatGPT에서 이어가기 ↗</button>
-    </div>
-  </details>;
+  return <FloatingMenu icon="external" label="다른 AI에서 이어가기" className="handoff-menu" panelClassName="handoff-menu-panel">
+    <button type="button" className="button button-quiet" onClick={() => { void onChoose("claude"); }}>Claude에서 이어가기 ↗</button>
+    <button type="button" className="button button-quiet" onClick={() => { void onChoose("chatgpt"); }}>ChatGPT에서 이어가기 ↗</button>
+  </FloatingMenu>;
 }
 
 export interface ProposalCardProps {
